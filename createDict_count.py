@@ -2,13 +2,6 @@ import ujson as json
 import sys, pickle, timeit, math
 from collections import defaultdict
 
-# def saveObjectToFile(fileName, data):
-#     with open(fileName, 'a') as outfile:
-#         outfile.write( "{}\n".format(json.dumps(data)) )
-
-# writeFile = sys.argv[1]
-
-# def buildDict(fileName, writeFile):
 def buildDict(fileName):
 
     userid_counter = 0
@@ -25,7 +18,6 @@ def buildDict(fileName):
     dictionaryUsers = defaultdict(int)
     dictionaryTweets = defaultdict(int)
     dictionaryNoGeoUsers = defaultdict(int)
-    # dictionaryEN = defaultdict(int)
     
     with open(fileName, 'r') as jsonfile:
 
@@ -76,32 +68,8 @@ def buildDict(fileName):
             else:
                 NoLangTag += 1 
 
-            # info = [messageid, geo]
-
-            # update the defaultdict
-            #if info not in dictionaryUsers.items():
-                # dictionaryUsers[userid].append(info)
-                        
-            # saveObjectToFile( writeFile, {"tweetid":messageid, "userid":userid, "coordinates": geo} )
-
-        # for key in dictionaryUsers:
-        #     userid_counter += 1
         userid_counter = len(dictionaryUsers)
-
-            # userTweets = dictionaryUsers[key]
-            # print key
-            # print userTweets
-            # print len(userTweets)
-            # tweets_counter += len(userTweets)
-
-        # print dictionaryTweets
-        # print len(dictionaryTweets)
-        # for key in dictionaryTweets:
-        #     messageid_counter += 1
         messageid_counter = len(dictionaryTweets)
-
-        # for key in dictionaryNoGeoUsers:
-        # 	NoGeoUser += 1
         NoGeoUser = len(dictionaryNoGeoUsers)
 
         # display results on console
@@ -116,16 +84,13 @@ def buildDict(fileName):
         print 'tweets in English: ' + str(EN_counter) + " Percentage: " + str( float(EN_counter)/float(messageid_counter)*100 )
         print 'tweets without Language Tag: ' + str(NoLangTag)
         print '--------------------'
-        # print dictionaryNoGeoUsers.items()
-
-    # pickle.dump(dictionaryUsers, open('user_tweet_history_050116.pickle','w'))
 
 def main():
 
     # mark the beginning time of process
     start = timeit.default_timer()
     
-    fileName = 'two_months_sample.json'
+    fileName = 'oneyear_sample.json'
     print 'Analyzing the file: ' + fileName
 
     buildDict(fileName)
