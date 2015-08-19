@@ -30,7 +30,7 @@ def saveObjectToOutput(fileName, data):
 def extractTweetfromMix(path, fileName):
 
     file_counter = 0
-    tweet_counter = 0
+    unique_tweets = set()
 
     for eachfile in os.listdir(path):
         if not eachfile.startswith('.'):               
@@ -41,17 +41,19 @@ def extractTweetfromMix(path, fileName):
             records = export_DataSift_file(sub_path)
             
             for tweet in records:
-                tweet_counter += 1
+                    msg_id = tweet['id']
 
-                saveObjectToOutput(fileName, tweet)
+                    if msg_id not in unique_tweets:
+                        unique_tweets.add(msg_id)
+                        saveObjectToOutput(fileName, tweet)
 
     print 'How many files in the folder: ' + str(file_counter)
-    print 'How many tweets in total: ' + str(tweet_counter)
+    print 'How many tweets in total: ' + str(len(unique_tweets))
 
 def extractTweetfromMonth(path, fileName):
 
     file_counter = 0
-    tweet_counter = 0
+    unique_tweets = set()
 
     for root, dirs, files in os.walk(path):
         for eachfile in files:
@@ -63,12 +65,14 @@ def extractTweetfromMonth(path, fileName):
                 records = export_DataSift_file(sub_path)
 
                 for tweet in records:
-                    tweet_counter += 1
+                    msg_id = tweet['id']
 
-                    saveObjectToOutput(fileName, tweet)
+                    if msg_id not in unique_tweets:
+                        unique_tweets.add(msg_id)
+                        saveObjectToOutput(fileName, tweet)
             
     print 'How many files in the folder: ' + str(file_counter)
-    print 'How many tweets in total: ' + str(tweet_counter)
+    print 'How many tweets in total: ' + str(len(unique_tweets))
 
 def main():
 
