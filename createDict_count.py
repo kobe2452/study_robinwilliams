@@ -34,14 +34,14 @@ def buildDict(fileName):
                 if userid not in dictionaryUsers:
                 	dictionaryUsers[userid] += 1
             else:
-                print user    
+                print "user: " + str(user)    
 
             if 'geo_enabled' in user:
                 geosetting = user['geo_enabled']
                 if geosetting is True:
                     geouser_counter += 1
                 else:
-                    print geosetting
+                    print "geosetting: " + str(geosetting)
             else:
                 user_NO_geo += 1
                 if userid not in dictionaryNoGeoUsers:
