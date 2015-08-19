@@ -11,7 +11,9 @@ pRetweet = re.compile(r'\brt\b', re.IGNORECASE)
 punctuation = { 0x2018:0x27, 0x2019:0x27, 0x201C:0x22, 0x201D:0x22 }
 h = HTMLParser.HTMLParser()
 
-def count_keywords_all(fileName, rules):
+def count_all_data_keywords(fileName, keywords):
+
+    rules = process_keywords(keywords)
 
     wnl = nltk.WordNetLemmatizer()
 
@@ -38,18 +40,19 @@ def count_keywords_all(fileName, rules):
                 # new_tokens = stemmer_lemmatizer(tokens)
 
                 for item in rules:
-
                     intersection_word = set(new_tokens).intersection(item)
-
                     if len(intersection_word) == len(item):
-                        # print intersection_word, item, message
-
                         keywords_dict[rules.index(item)] += 1
 
     for k, v in keywords_dict.items():
-        print rules[k], v
+        print keywords[k], v
+
+    return keywords_dict
 
 def process_keywords(keywords):
+    """
+    Break up keywords into a list of words as rules
+    """
 
     rules = []
 
@@ -59,10 +62,10 @@ def process_keywords(keywords):
     return rules
 
 def get_normalized_word(word):
-
     """
     Returns normalized word or None, if it doesn't have a normalized representation.
     """
+
     if pLink.match(word):
         return '[http://LINK]'
     if pMention.match(word):
@@ -85,6 +88,45 @@ def stemmer_lemmatizer(tokens):
 
     return [wnl.lemmatize(get_normalized_word(t)) for t in tokens]
 
+def compare_user_ids_change(fileName):
+
+    day_dict = defaultdict(int)
+    date_dict = defaultdict(int)
+    month_dict = defaultdict(int)
+    year_dict = defaultdict(int)
+
+    for line in open(fileName, "r"):
+        tweet = json.loads(line.decode('utf-8'))
+
+        if 'lang' in tweet:                
+            language = tweet['lang']
+
+            # Only process and analyze tweets written in English
+            if language == 'en':
+                
+                user = tweet['user']
+                user_id_str = user['id_str']
+                user_id = user['id']
+
+                timestamp = tweet['created_at'].split()
+
+                day = timestamp[0]
+                date = timestamp[1]
+                month = timestamp[2]
+                year = timestamp[3]
+
+                day_dict[day] += 1
+                date_dict[date] += 1
+                month_dict[month] += 1
+                year_dict[year] += 1
+
+    # for dic in [day_dict, date_dict, month_dict, year_dict]:
+    #     for k, v in dic.items():
+    #         print k, v
+    #     print
+    
+    
+
 def main():
     # mark the beginning time of process
     start = timeit.default_timer()
@@ -93,10 +135,10 @@ def main():
     print 'Counting keywords in file: ' + fileName
 
     keywords = ['suicide', 'depression', 'media guideline', 'seek help', 'suicide lifeline', 'crisis hotline', 'Parkinson\'s', 'Robin Williams']
-    rules = process_keywords(keywords)
 
-    count_keywords_all(fileName, rules)
+    # keywords_dict = count_all_data_keywords(fileName, keywords)
 
+    compare_user_ids_change(fileName)
 
     ##### mark the ending time of process #####
     end = timeit.default_timer()
