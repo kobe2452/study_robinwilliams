@@ -1,7 +1,7 @@
 import ujson as json
-import timeit, math, HTMLParser, re, string, nltk
+import timeit, math, HTMLParser, re, string, nltk, operator
 from ark_twokenize import tokenizeRawTweetText
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 p = re.compile(r'^#*[a-z]+[\'-/]*[a-z]*$', re.UNICODE)
 pLink = re.compile(r'https*:\S+\.\w+', re.IGNORECASE)
@@ -12,6 +12,8 @@ punctuation = { 0x2018:0x27, 0x2019:0x27, 0x201C:0x22, 0x201D:0x22 }
 h = HTMLParser.HTMLParser()
 
 def count_all_data_keywords(fileName, keywords):
+
+    print 'Counting keywords in file: ' + fileName
 
     rules = process_keywords(keywords)
 
@@ -48,6 +50,49 @@ def count_all_data_keywords(fileName, keywords):
         print keywords[k], v
 
     return keywords_dict
+
+def split_tweets_before_after_event(fileName, EVENT, MONTHS):
+
+    event_date = EVENT.split()[1]
+    event_month = EVENT.split()[2]
+    event_year = EVENT.split()[3]
+
+    before_dict = defaultdict(int)
+    after_dict = defaultdict(int)
+
+    for line in open(fileName, "r"):
+        tweet = json.loads(line.decode('utf-8'))
+
+        if 'lang' in tweet:                
+            language = tweet['lang']
+
+            # Only process and analyze tweets written in English
+            if language == 'en':
+                msg_id = tweet['id']
+                timestamp = tweet['created_at'].split()
+
+                tweet_date = timestamp[1]
+                tweet_month = timestamp[2]
+                tweet_year = timestamp[3]
+
+                if int(tweet_year) > int(event_year):
+                    after_dict[msg_id] += 1
+                elif int(tweet_year) == int(event_year):
+                    if MONTHS.index(tweet_month) > MONTHS.index(event_month):
+                        after_dict[msg_id] += 1
+                    elif MONTHS.index(tweet_month) < MONTHS.index(event_month):
+                        before_dict[msg_id] += 1
+                    elif MONTHS.index(tweet_month) == MONTHS.index(event_month):
+                        if tweet_date < event_date:
+                            before_dict[msg_id] += 1
+                        else:
+                            after_dict[msg_id] += 1
+
+    print "RW suicide happened on: " + EVENT
+    print "%s tweets posted before this" % str(len(before_dict))
+    print "%s tweets posted after this" % len(after_dict)
+
+    return before_dict, after_dict
 
 def process_keywords(keywords):
     """
@@ -88,7 +133,7 @@ def stemmer_lemmatizer(tokens):
 
     return [wnl.lemmatize(get_normalized_word(t)) for t in tokens]
 
-def compare_user_ids_change(fileName):
+def count_tweets_unit_time_period(fileName, MONTHS, DAYS):
 
     day_dict = defaultdict(int)
     date_dict = defaultdict(int)
@@ -110,7 +155,7 @@ def compare_user_ids_change(fileName):
 
                 timestamp = tweet['created_at'].split()
 
-                day = timestamp[0]
+                day = timestamp[0].strip(",")
                 date = timestamp[1]
                 month = timestamp[2]
                 year = timestamp[3]
@@ -120,25 +165,45 @@ def compare_user_ids_change(fileName):
                 month_dict[month] += 1
                 year_dict[year] += 1
 
-    # for dic in [day_dict, date_dict, month_dict, year_dict]:
-    #     for k, v in dic.items():
-    #         print k, v
-    #     print
-    
-    
+    print "Numbers of tweets from 1st to 31th:"
+    for k, v in sorted(date_dict.items(), key=operator.itemgetter(0)):
+        print k, v
+
+    print
+
+    print "Numbers of tweets in 2014 and 2015:"
+    for k, v in sorted(year_dict.items(), key=operator.itemgetter(0)):
+        print k, v
+
+    print
+
+    print "Numbers of tweets from Monday to Sunday:"
+    for day in DAYS:
+        print day, day_dict[day]
+
+    print
+
+    print "Numbers of tweets in each month:"
+    for month in MONTHS:
+        print month, month_dict[month]
 
 def main():
     # mark the beginning time of process
     start = timeit.default_timer()
 
+    EVENT = 'Mon, 11 Aug 2014'
+    MONTHS = [u'Jan', u'Feb', u'Mar', u'Apr', u'May', u'Jun', u'Jul', u'Aug', u'Sep', u'Oct', u'Nov', u'Dec']
+    DAYS = [u'Mon', u'Tue', u'Wed', u'Thu', u'Fri', u'Sat', u'Sun']
+
     fileName = 'oneyear_sample.json'
-    print 'Counting keywords in file: ' + fileName
 
     keywords = ['suicide', 'depression', 'media guideline', 'seek help', 'suicide lifeline', 'crisis hotline', 'Parkinson\'s', 'Robin Williams']
 
-    # keywords_dict = count_all_data_keywords(fileName, keywords)
+    keywords_dict = count_all_data_keywords(fileName, keywords)
 
-    compare_user_ids_change(fileName)
+    before_dict, after_dict = split_tweets_before_after_event(fileName, EVENT, MONTHS)
+
+    count_tweets_unit_time_period(fileName, MONTHS, DAYS)
 
     ##### mark the ending time of process #####
     end = timeit.default_timer()
