@@ -140,6 +140,7 @@ def count_tweets_unit_time_period(fileName, MONTHS, DAYS):
     date_dict = defaultdict(int)
     month_dict = defaultdict(int)
     year_dict = defaultdict(int)
+    eachday_dict = defaultdict(int)
 
     for line in open(fileName, "r"):
         tweet = json.loads(line.decode('utf-8'))
@@ -161,10 +162,14 @@ def count_tweets_unit_time_period(fileName, MONTHS, DAYS):
                 month = timestamp[2]
                 year = timestamp[3]
 
+                two_digit_month = '%02d' % int(MONTHS.index(month)+1)
+                eachday = year + two_digit_month + date
+
                 day_dict[day] += 1
                 date_dict[date] += 1
                 month_dict[month] += 1
                 year_dict[year] += 1
+                eachday_dict[eachday] += 1
 
     print "Numbers of tweets from 1st to 31th:"
     for k, v in sorted(date_dict.items(), key=operator.itemgetter(0)):
@@ -188,11 +193,18 @@ def count_tweets_unit_time_period(fileName, MONTHS, DAYS):
     for month in MONTHS:
         print month, month_dict[month]
 
+    print
+
+    print "Numbers of tweets in each single day:"
+    for k, v in sorted(eachday_dict.items(), key=operator.itemgetter(0)):
+        print k, v
+
 def count_daily_words_keywords(fileName, keywords, MONTHS):
 
     rules = process_keywords(keywords)
 
     daily_index_dict = dict()
+    daily_words_count = dict()
 
     for line in open(fileName, "r"):
         tweet = json.loads(line.decode('utf-8'))
@@ -212,14 +224,20 @@ def count_daily_words_keywords(fileName, keywords, MONTHS):
                 two_digit_month = '%02d' % int(MONTHS.index(month)+1)
                 eachday = year + two_digit_month + date
 
-                # text information
+                # tweet information
                 message = tweet['text']
+
                 # ArkTweetNLP tokenizer
                 tokens = tokenizeRawTweetText(message)
                 new_tokens = []
                 for word in tokens:
                     normalized_word = get_normalized_word(word)
                     new_tokens.append(normalized_word)
+
+                try:
+                    daily_words_count[eachday] += len(new_tokens)
+                except KeyError:
+                    daily_words_count[eachday] = len(new_tokens)
 
                 for index, item in enumerate(rules):
                     intersection_word = set(new_tokens).intersection(item)
@@ -235,7 +253,7 @@ def count_daily_words_keywords(fileName, keywords, MONTHS):
                         except KeyError:
                             daily_index_dict[key] = 1
 
-    return daily_index_dict
+    return daily_index_dict, daily_words_count
 
 def main():
     # mark the beginning time of process
@@ -253,9 +271,9 @@ def main():
 
     # before_dict, after_dict = split_tweets_before_after_event(fileName, EVENT, MONTHS)
 
-    # count_tweets_unit_time_period(fileName, MONTHS, DAYS)
+    count_tweets_unit_time_period(fileName, MONTHS, DAYS)
 
-    count_daily_words_keywords(fileName, keywords, MONTHS)
+    daily_index_dict, daily_words_count = count_daily_words_keywords(fileName, keywords, MONTHS)
 
     ##### mark the ending time of process #####
     end = timeit.default_timer()
