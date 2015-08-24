@@ -192,7 +192,7 @@ def count_daily_words_keywords(fileName, keywords, MONTHS):
 
     rules = process_keywords(keywords)
 
-    daily_dict = dict()
+    daily_index_dict = dict()
 
     for line in open(fileName, "r"):
         tweet = json.loads(line.decode('utf-8'))
@@ -212,8 +212,6 @@ def count_daily_words_keywords(fileName, keywords, MONTHS):
                 two_digit_month = '%02d' % int(MONTHS.index(month)+1)
                 eachday = year + two_digit_month + date
 
-                keywords_dict = defaultdict(int)
-
                 # text information
                 message = tweet['text']
                 # ArkTweetNLP tokenizer
@@ -225,18 +223,19 @@ def count_daily_words_keywords(fileName, keywords, MONTHS):
 
                 for index, item in enumerate(rules):
                     intersection_word = set(new_tokens).intersection(item)
+                    # intersection word is exactly the same as the item
                     if len(intersection_word) == len(item):
-                        keywords_dict[index] += 1
 
-                    daily_dict[eachday][index] += keywords_dict[index]
+                        # concatenate time information and keyword index
+                        # used as keys in overall dictionary
+                        key = eachday + str(index)
 
-    # print len(daily_dict)
-    # for k, v in daily_dict.items():
-    #     print k, len(v)
-    #     for k1, v1 in keywords_dict.items():
-    #         print keywords[k1], v1
+                        try:
+                            daily_index_dict[key] += 1
+                        except KeyError:
+                            daily_index_dict[key] = 1
 
-    return daily_dict
+    return daily_index_dict
 
 def main():
     # mark the beginning time of process
