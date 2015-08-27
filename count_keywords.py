@@ -203,7 +203,7 @@ def count_daily_words_keywords(fileName, keywords, MONTHS):
 
     rules = process_keywords(keywords)
 
-    daily_index_dict = dict()
+    daily_keyword_index_dict = dict()
     daily_words_count = dict()
 
     for line in open(fileName, "r"):
@@ -215,13 +215,9 @@ def count_daily_words_keywords(fileName, keywords, MONTHS):
             # Only process and analyze tweets written in English
             if language == 'en':
                 # time information
-                timestamp = tweet['created_at'].split()
-                day = timestamp[0].strip(",")
-                date = timestamp[1]
-                month = timestamp[2]
-                year = timestamp[3]
+                timestamp = tweet['created_at']
 
-                two_digit_month = '%02d' % int(MONTHS.index(month)+1)
+                year, month, two_digit_month, day, date, hour, minute, second = parse_timestamp(timestamp, MONTHS)
                 eachday = year + two_digit_month + date
 
                 # tweet information
@@ -249,11 +245,46 @@ def count_daily_words_keywords(fileName, keywords, MONTHS):
                         key = eachday + str(index)
 
                         try:
-                            daily_index_dict[key] += 1
+                            daily_keyword_index_dict[key] += 1
                         except KeyError:
-                            daily_index_dict[key] = 1
+                            daily_keyword_index_dict[key] = 1
 
-    return daily_index_dict, daily_words_count
+    return daily_words_count, daily_keyword_index_dict
+
+def get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count):
+
+    sorted_eachday_index_dict = OrderedDict(sorted(daily_keyword_index_dict.items(), key=lambda t: int(t[0])))
+
+    # initialize a dictionary to summarize tweets numbers from Mon to Sun
+    day_count_dict = defaultdict(dict)
+
+    for k, v in sorted_eachday_index_dict.items():
+        day = k[:-1]
+        index = k[-1:]
+        count = v
+
+        total_words = daily_words_count[day]
+
+        rate = count / float(total_words) * 100
+        day_count_dict[day][index] = rate
+
+    for k, v in day_count_dict.items():
+        print k, v
+
+    return day_count_dict
+
+def parse_timestamp(timestamp, MONTHS):
+
+    day = timestamp.split()[0].strip(",")
+    date = timestamp.split()[1]
+    month = timestamp.split()[2]
+    year = timestamp.split()[3]
+    hour = timestamp.split()[4].split(":")[0]
+    minute = timestamp.split()[4].split(":")[1]
+    second = timestamp.split()[4].split(":")[2]
+    two_digit_month = '%02d' % int(MONTHS.index(month)+1)
+
+    return year, month, two_digit_month, day, date, hour, minute, second
 
 def main():
     # mark the beginning time of process
@@ -265,16 +296,18 @@ def main():
 
     fileName = 'oneyear_sample.json'
 
-    keywords = ['suicide', 'depression', 'media guideline', 'seek help', 'suicide lifeline', 'crisis hotline', 'Parkinson\'s', 'Robin Williams']
+    keywords = ['suicide', 'depression', 'seek help', 'suicide lifeline', 'crisis hotline', 'Parkinson\'s', 'Robin Williams']
 
     # keywords_dict = count_all_data_keywords(fileName, keywords)
 
     # before_dict, after_dict = split_tweets_before_after_event(fileName, EVENT, MONTHS)
 
-    count_tweets_unit_time_period(fileName, MONTHS, DAYS)
+    # count_tweets_unit_time_period(fileName, MONTHS, DAYS)
 
-    daily_index_dict, daily_words_count = count_daily_words_keywords(fileName, keywords, MONTHS)
+    daily_words_count, daily_keyword_index_dict = count_daily_words_keywords(fileName, keywords, MONTHS)
 
+    day_count_dict = get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count)
+    
     ##### mark the ending time of process #####
     end = timeit.default_timer()
     seconds = math.ceil(end - start)
