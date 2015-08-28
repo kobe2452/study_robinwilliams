@@ -242,7 +242,7 @@ def count_daily_words_keywords(fileName, keywords, MONTHS):
 
                         # concatenate time information and keyword index
                         # used as keys in overall dictionary
-                        key = eachday + str(index)
+                        key = int(eachday + str(index))
 
                         try:
                             daily_keyword_index_dict[key] += 1
@@ -253,10 +253,10 @@ def count_daily_words_keywords(fileName, keywords, MONTHS):
 
 def get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count):
 
-    sorted_eachday_index_dict = OrderedDict(sorted(daily_keyword_index_dict.items(), key=lambda t: int(t[0])))
+    sorted_eachday_index_dict = OrderedDict(sorted(daily_keyword_index_dict.items(), key=operator.itemgetter(0)))
 
     # initialize a dictionary to summarize tweets numbers from Mon to Sun
-    day_count_dict = defaultdict(dict)
+    day_keyword_rate_dict = defaultdict(dict)
 
     for k, v in sorted_eachday_index_dict.items():
         day = k[:-1]
@@ -266,12 +266,24 @@ def get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count):
         total_words = daily_words_count[day]
 
         rate = count / float(total_words) * 100
-        day_count_dict[day][index] = rate
+        day_keyword_rate_dict[day][index] = rate
 
-    for k, v in day_count_dict.items():
-        print k, v
+    for k, v in day_keyword_rate_dict.items():
+        print k, v, type(k), type(v)
 
-    return day_count_dict
+    return day_keyword_rate_dict
+
+def plot_eachday_keyword_rate(day_keyword_rate_dict):
+
+    sorted_day_keyword_rate_dict = OrderedDict(sorted(day_keyword_rate_dict.items(), key=int(operator.itemgetter(0))))
+
+    for k, v in day_keyword_rate_dict.items():
+        print k
+        sorted_v = OrderedDict(sorted(v.items(), key=int(operator.itemgetter(0))))
+        for k0, v0 in sorted_v.items():
+            print k0, v0
+
+        print
 
 def parse_timestamp(timestamp, MONTHS):
 
@@ -306,7 +318,9 @@ def main():
 
     daily_words_count, daily_keyword_index_dict = count_daily_words_keywords(fileName, keywords, MONTHS)
 
-    day_count_dict = get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count)
+    day_keyword_rate_dict = get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count)
+
+    # plot_eachday_keyword_rate(day_keyword_rate_dict)
     
     ##### mark the ending time of process #####
     end = timeit.default_timer()
