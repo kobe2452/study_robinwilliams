@@ -242,7 +242,7 @@ def count_daily_words_keywords(fileName, keywords, MONTHS):
 
                         # concatenate time information and keyword index
                         # used as keys in overall dictionary
-                        key = int(eachday + str(index))
+                        key = eachday + str(index)
 
                         try:
                             daily_keyword_index_dict[key] += 1
@@ -268,18 +268,15 @@ def get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count):
         rate = count / float(total_words) * 100
         day_keyword_rate_dict[day][index] = rate
 
-    for k, v in day_keyword_rate_dict.items():
-        print k, v, type(k), type(v)
-
     return day_keyword_rate_dict
 
 def plot_eachday_keyword_rate(day_keyword_rate_dict):
 
-    sorted_day_keyword_rate_dict = OrderedDict(sorted(day_keyword_rate_dict.items(), key=int(operator.itemgetter(0))))
+    sorted_day_keyword_rate_dict = OrderedDict(sorted(day_keyword_rate_dict.items(), key=operator.itemgetter(0)))
 
     for k, v in day_keyword_rate_dict.items():
         print k
-        sorted_v = OrderedDict(sorted(v.items(), key=int(operator.itemgetter(0))))
+        sorted_v = OrderedDict(sorted(v.items(), key=operator.itemgetter(0)))
         for k0, v0 in sorted_v.items():
             print k0, v0
 
@@ -320,7 +317,7 @@ def main():
 
     day_keyword_rate_dict = get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count)
 
-    # plot_eachday_keyword_rate(day_keyword_rate_dict)
+    plot_eachday_keyword_rate(day_keyword_rate_dict)
     
     ##### mark the ending time of process #####
     end = timeit.default_timer()
