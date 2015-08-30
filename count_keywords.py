@@ -270,15 +270,15 @@ def get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count):
 
     return day_keyword_rate_dict
 
-def plot_eachday_keyword_rate(day_keyword_rate_dict):
+def plot_eachday_keyword_rate(day_keyword_rate_dict, keywords):
 
     sorted_day_keyword_rate_dict = OrderedDict(sorted(day_keyword_rate_dict.items(), key=operator.itemgetter(0)))
 
-    for k, v in day_keyword_rate_dict.items():
+    for k, v in sorted_day_keyword_rate_dict.items():
         print k
         sorted_v = OrderedDict(sorted(v.items(), key=operator.itemgetter(0)))
         for k0, v0 in sorted_v.items():
-            print k0, v0
+            print keywords[int(k0)], v0
 
         print
 
@@ -317,7 +317,7 @@ def main():
 
     day_keyword_rate_dict = get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count)
 
-    plot_eachday_keyword_rate(day_keyword_rate_dict)
+    plot_eachday_keyword_rate(day_keyword_rate_dict, keywords)
     
     ##### mark the ending time of process #####
     end = timeit.default_timer()
