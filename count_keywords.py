@@ -237,13 +237,15 @@ def count_daily_words_keywords(fileName, keywords, MONTHS):
 
                 for index, item in enumerate(rules):
                     intersection_word = set(new_tokens).intersection(item)
+
+                    # concatenate time information and keyword index
+                    # used as keys in overall dictionary
+                    key = eachday + str(index)
+                    daily_keyword_index_dict.setdefault(key, 0)
+
                     # intersection word is exactly the same as the item
                     if len(intersection_word) == len(item):
-
-                        # concatenate time information and keyword index
-                        # used as keys in overall dictionary
-                        key = eachday + str(index)
-
+                        print intersection_word, item, new_tokens
                         try:
                             daily_keyword_index_dict[key] += 1
                         except KeyError:
@@ -274,13 +276,19 @@ def plot_eachday_keyword_rate(day_keyword_rate_dict, keywords):
 
     sorted_day_keyword_rate_dict = OrderedDict(sorted(day_keyword_rate_dict.items(), key=operator.itemgetter(0)))
 
+    date_list = []
+    rate_dict = defaultdict(list)
+
     for k, v in sorted_day_keyword_rate_dict.items():
-        print k
+        # print k
+        date_list.append(k)
+
         sorted_v = OrderedDict(sorted(v.items(), key=operator.itemgetter(0)))
         for k0, v0 in sorted_v.items():
-            print keywords[int(k0)], v0
+            # print keywords[int(k0)], v0
+            rate_dict[keywords[int(k0)]].append(v0)
 
-        print
+    return date_list, rate_dict
 
 def parse_timestamp(timestamp, MONTHS):
 
