@@ -290,7 +290,7 @@ def get_eachday_keyword_rate(day_keyword_rate_dict, keywords):
 
     return date_list, rate_dict
 
-def plot_separate_keyword_rate(date_list, keyword_rate_list, output_name):
+def plot_separate_keyword_rate(date_list, keyword_rate_list, layout_title, X_title, Y_title, output_name):
 
     data = Data([
         Scatter(
@@ -298,12 +298,36 @@ def plot_separate_keyword_rate(date_list, keyword_rate_list, output_name):
             y = keyword_rate_list
         )
     ])
-    plot_url = py.plot(data, filename = output_name)
 
-def plot_keywords_rates(date_list, rate_dict, keywords):
+    layout = Layout(
+        title = layout_title,
+        width = 2000,
+        xaxis = XAxis(
+            title = X_title
+        ),
+        yaxis = YAxis(
+            title = Y_title
+        )
+    )
+
+    fig = Figure(
+        data = data,
+        layout = layout
+    )
+
+    plot_url = py.plot(fig, filename = output_name)
+
+def plot_keywords_rates(date_list, rate_dict, keywords, EVENT):
 
     for index, item in enumerate(keywords):
-        plot_separate_keyword_rate(date_list, rate_dict[keywords[index]], item + ' daily rate')        
+
+        keyword = rate_dict[keywords[index]]
+        layout_title = "The appearance of " + item + " along the time"
+        X_title = "Six months before and after RW suicide date: " + EVENT
+        Y_title = "The ratio between number of " + item + " \\and total number of words in one day"
+        output_name = item + ' daily rate'
+
+        plot_separate_keyword_rate(date_list, keyword, layout_title, X_title, Y_title, output_name)        
 
 def parse_timestamp(timestamp, MONTHS):
 
@@ -342,7 +366,7 @@ def main():
 
     date_list, rate_dict = get_eachday_keyword_rate(day_keyword_rate_dict, keywords)
 
-    plot_keywords_rates(date_list, rate_dict, keywords)
+    plot_keywords_rates(date_list, rate_dict, keywords, EVENT)
     
     ##### mark the ending time of process #####
     end = timeit.default_timer()
