@@ -2,6 +2,8 @@ import ujson as json
 import timeit, math, HTMLParser, re, string, nltk, operator
 from ark_twokenize import tokenizeRawTweetText
 from collections import defaultdict, OrderedDict
+import plotly.plotly as py
+from plotly.graph_objs import *
 
 p = re.compile(r'^#*[a-z]+[\'-/]*[a-z]*$', re.UNICODE)
 pLink = re.compile(r'https*:\S+\.\w+', re.IGNORECASE)
@@ -245,7 +247,6 @@ def count_daily_words_keywords(fileName, keywords, MONTHS):
 
                     # intersection word is exactly the same as the item
                     if len(intersection_word) == len(item):
-                        print intersection_word, item, new_tokens
                         try:
                             daily_keyword_index_dict[key] += 1
                         except KeyError:
@@ -272,7 +273,7 @@ def get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count):
 
     return day_keyword_rate_dict
 
-def plot_eachday_keyword_rate(day_keyword_rate_dict, keywords):
+def get_eachday_keyword_rate(day_keyword_rate_dict, keywords):
 
     sorted_day_keyword_rate_dict = OrderedDict(sorted(day_keyword_rate_dict.items(), key=operator.itemgetter(0)))
 
@@ -280,15 +281,29 @@ def plot_eachday_keyword_rate(day_keyword_rate_dict, keywords):
     rate_dict = defaultdict(list)
 
     for k, v in sorted_day_keyword_rate_dict.items():
-        # print k
-        date_list.append(k)
+        date = str(k[:4]) + "-" + str(k[4:6]) + "-" + str(k[6:]) 
+        date_list.append(date)
 
         sorted_v = OrderedDict(sorted(v.items(), key=operator.itemgetter(0)))
         for k0, v0 in sorted_v.items():
-            # print keywords[int(k0)], v0
             rate_dict[keywords[int(k0)]].append(v0)
 
     return date_list, rate_dict
+
+def plot_separate_keyword_rate(date_list, keyword_rate_list, output_name):
+
+    data = Data([
+        Scatter(
+            x = date_list,
+            y = keyword_rate_list
+        )
+    ])
+    plot_url = py.plot(data, filename = output_name)
+
+def plot_keywords_rates(date_list, rate_dict, keywords):
+
+    for index, item in enumerate(keywords):
+        plot_separate_keyword_rate(date_list, rate_dict[keywords[index]], item + ' daily rate')        
 
 def parse_timestamp(timestamp, MONTHS):
 
@@ -325,7 +340,9 @@ def main():
 
     day_keyword_rate_dict = get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count)
 
-    plot_eachday_keyword_rate(day_keyword_rate_dict, keywords)
+    date_list, rate_dict = get_eachday_keyword_rate(day_keyword_rate_dict, keywords)
+
+    plot_keywords_rates(date_list, rate_dict, keywords)
     
     ##### mark the ending time of process #####
     end = timeit.default_timer()
