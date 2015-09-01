@@ -19,9 +19,10 @@ def count_all_data_keywords(fileName, keywords):
 
     rules = process_keywords(keywords)
 
-    wnl = nltk.WordNetLemmatizer()
+    keywords_dict = defaultdict(set)
 
-    keywords_dict = defaultdict(int)
+    crisis_hotline_json = open("crisis_hotline.json", "w")
+    media_guideline_json = open("media_guideline.json", "w")
 
     for line in open(fileName, "r"):
         tweet = json.loads(line.decode('utf-8'))
@@ -31,7 +32,9 @@ def count_all_data_keywords(fileName, keywords):
 
             # Only process and analyze tweets written in English
             if language == 'en':
+
                 message = tweet['text']
+                msg_id = tweet['id']
 
                 # ArkTweetNLP tokenizer
                 tokens = tokenizeRawTweetText(message)
@@ -46,12 +49,24 @@ def count_all_data_keywords(fileName, keywords):
                 for index, item in enumerate(rules):
                     intersection_word = set(new_tokens).intersection(item)
                     if len(intersection_word) == len(item):
-                        keywords_dict[index] += 1
+                        keywords_dict[index].add(msg_id)
 
+                        if index == 4:
+                            json.dump(tweet, crisis_hotline_json)
+                            crisis_hotline_json.write("\n")
+                        elif index == 7:
+                            json.dump(tweet, media_guideline_json)
+                            media_guideline_json.write("\n")
+                            
     for k, v in keywords_dict.items():
-        print keywords[k], v
+        print keywords[k], len(v)
 
     return keywords_dict
+
+# def find_tweets_with_different_keywords(keywords_dict, keywords):
+    
+#     for index, item in enumerate(keywords):
+#         keywords_dict[index]
 
 def split_tweets_before_after_event(fileName, EVENT, MONTHS):
 
@@ -352,21 +367,21 @@ def main():
 
     fileName = 'oneyear_sample.json'
 
-    keywords = ['suicide', 'depression', 'seek help', 'suicide lifeline', 'crisis hotline', 'Parkinson\'s', 'Robin Williams']
+    keywords = ['suicide', 'depression', 'seek help', 'suicide lifeline', 'crisis hotline', 'Parkinson\'s', 'Robin Williams', 'media guideline']
 
-    # keywords_dict = count_all_data_keywords(fileName, keywords)
+    keywords_dict = count_all_data_keywords(fileName, keywords)
 
     # before_dict, after_dict = split_tweets_before_after_event(fileName, EVENT, MONTHS)
 
     # count_tweets_unit_time_period(fileName, MONTHS, DAYS)
 
-    daily_words_count, daily_keyword_index_dict = count_daily_words_keywords(fileName, keywords, MONTHS)
+    # daily_words_count, daily_keyword_index_dict = count_daily_words_keywords(fileName, keywords, MONTHS)
 
-    day_keyword_rate_dict = get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count)
+    # day_keyword_rate_dict = get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count)
 
-    date_list, rate_dict = get_eachday_keyword_rate(day_keyword_rate_dict, keywords)
+    # date_list, rate_dict = get_eachday_keyword_rate(day_keyword_rate_dict, keywords)
 
-    plot_keywords_rates(date_list, rate_dict, keywords, EVENT)
+    # plot_keywords_rates(date_list, rate_dict, keywords, EVENT)
     
     ##### mark the ending time of process #####
     end = timeit.default_timer()
