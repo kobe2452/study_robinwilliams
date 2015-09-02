@@ -21,8 +21,8 @@ def count_all_data_keywords(fileName, keywords):
 
     keywords_dict = defaultdict(set)
 
-    crisis_hotline_json = open("crisis_hotline.json", "w")
-    media_guideline_json = open("media_guideline.json", "w")
+    # crisis_hotline_json = open("crisis_hotline.json", "w")
+    # media_guideline_json = open("media_guideline.json", "w")
 
     for line in open(fileName, "r"):
         tweet = json.loads(line.decode('utf-8'))
@@ -51,22 +51,90 @@ def count_all_data_keywords(fileName, keywords):
                     if len(intersection_word) == len(item):
                         keywords_dict[index].add(msg_id)
 
-                        if index == 4:
-                            json.dump(tweet, crisis_hotline_json)
-                            crisis_hotline_json.write("\n")
-                        elif index == 7:
-                            json.dump(tweet, media_guideline_json)
-                            media_guideline_json.write("\n")
-                            
+                        # if index == 4:
+                        #     json.dump(tweet, crisis_hotline_json)
+                        #     crisis_hotline_json.write("\n")
+                        # elif index == 7:
+                        #     json.dump(tweet, media_guideline_json)
+                        #     media_guideline_json.write("\n")
+
     for k, v in keywords_dict.items():
         print keywords[k], len(v)
 
     return keywords_dict
 
-# def find_tweets_with_different_keywords(keywords_dict, keywords):
+def find_tweets_with_different_keywords(keywords_dict, keywords):
+
+    # suicide_ids = keywords_dict[0]
+    # depression_ids = keywords_dict[1]
+    # seekhelp_ids = keywords_dict[2]
+    # suicidelifeline_ids = keywords_dict[3]
+    # crisishotline_ids = keywords_dict[4]
+    # parkinsons_ids = keywords_dict[5]
+    # robinwilliams_ids = keywords_dict[6]
+
+    print keywords[0] + " + " + keywords[1]
+    print len(set.intersection(keywords_dict[0], keywords_dict[1]))
     
-#     for index, item in enumerate(keywords):
-#         keywords_dict[index]
+    print keywords[0] + " + " + keywords[2]
+    print len(set.intersection(keywords_dict[0], keywords_dict[2]))
+    
+    print keywords[0] + " + " + keywords[3]
+    print len(set.intersection(keywords_dict[0], keywords_dict[3]))
+
+    print keywords[0] + " + " + keywords[4]
+    print len(set.intersection(keywords_dict[0], keywords_dict[4]))
+
+    print keywords[0] + " + " + keywords[5]
+    print len(set.intersection(keywords_dict[0], keywords_dict[5]))
+
+    print keywords[0] + " + " + keywords[6]
+    print len(set.intersection(keywords_dict[0], keywords_dict[6]))
+
+    print keywords[1] + " + " + keywords[2]
+    print len(set.intersection(keywords_dict[1], keywords_dict[2]))
+
+    print keywords[1] + " + " + keywords[3]
+    print len(set.intersection(keywords_dict[1], keywords_dict[3]))
+
+    print keywords[1] + " + " + keywords[4]
+    print len(set.intersection(keywords_dict[1], keywords_dict[4]))
+
+    print keywords[1] + " + " + keywords[5]
+    print len(set.intersection(keywords_dict[1], keywords_dict[5]))
+
+    print keywords[1] + " + " + keywords[6]
+    print len(set.intersection(keywords_dict[1], keywords_dict[6]))
+
+    print keywords[2] + " + " + keywords[3]
+    print len(set.intersection(keywords_dict[2], keywords_dict[3]))
+
+    print keywords[2] + " + " + keywords[4]
+    print len(set.intersection(keywords_dict[2], keywords_dict[4]))
+
+    print keywords[2] + " + " + keywords[5]
+    print len(set.intersection(keywords_dict[2], keywords_dict[5]))
+
+    print keywords[2] + " + " + keywords[6]
+    print len(set.intersection(keywords_dict[2], keywords_dict[6]))
+
+    print keywords[3] + " + " + keywords[4]
+    print len(set.intersection(keywords_dict[3], keywords_dict[4]))
+
+    print keywords[3] + " + " + keywords[5]
+    print len(set.intersection(keywords_dict[3], keywords_dict[5]))
+
+    print keywords[3] + " + " + keywords[6]
+    print len(set.intersection(keywords_dict[3], keywords_dict[6]))
+
+    print keywords[4] + " + " + keywords[5]
+    print len(set.intersection(keywords_dict[4], keywords_dict[5]))
+
+    print keywords[4] + " + " + keywords[6]
+    print len(set.intersection(keywords_dict[4], keywords_dict[6]))
+
+    print keywords[5] + " + " + keywords[6]
+    print len(set.intersection(keywords_dict[5], keywords_dict[6]))
 
 def split_tweets_before_after_event(fileName, EVENT, MONTHS):
 
@@ -367,9 +435,11 @@ def main():
 
     fileName = 'oneyear_sample.json'
 
-    keywords = ['suicide', 'depression', 'seek help', 'suicide lifeline', 'crisis hotline', 'Parkinson\'s', 'Robin Williams', 'media guideline']
+    keywords = ['suicide', 'depression', 'seek help', 'suicide lifeline', 'crisis hotline', 'Parkinson\'s', 'Robin Williams']
 
     keywords_dict = count_all_data_keywords(fileName, keywords)
+
+    find_tweets_with_different_keywords(keywords_dict, keywords)
 
     # before_dict, after_dict = split_tweets_before_after_event(fileName, EVENT, MONTHS)
 
