@@ -4,6 +4,9 @@ from ark_twokenize import tokenizeRawTweetText
 from collections import defaultdict, OrderedDict
 import plotly.plotly as py
 from plotly.graph_objs import *
+from nltk.corpus import stopwords
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
 
 p = re.compile(r'^#*[a-z]+[\'-/]*[a-z]*$', re.UNICODE)
 pLink = re.compile(r'https*:\S+\.\w+', re.IGNORECASE)
@@ -13,13 +16,15 @@ pRetweet = re.compile(r'\brt\b', re.IGNORECASE)
 punctuation = {0x2018:0x27, 0x2019:0x27, 0x201C:0x22, 0x201D:0x22}
 h = HTMLParser.HTMLParser()
 
-def count_all_data_keywords(fileName, keywords):
+def count_all_data_keywords(fileName, keywords, stopset):
 
     print 'Counting keywords in file: ' + fileName
 
     rules = process_keywords(keywords)
 
     keywords_dict = defaultdict(set)
+
+    messages_dict = {}
 
     # crisis_hotline_json = open("crisis_hotline.json", "w")
     # media_guideline_json = open("media_guideline.json", "w")
@@ -58,10 +63,16 @@ def count_all_data_keywords(fileName, keywords):
                         #     json.dump(tweet, media_guideline_json)
                         #     media_guideline_json.write("\n")
 
+                stopwords_removed_tokens = []
+                for item in new_tokens:
+                    if (item not in stopset) and (item is not None):
+                        stopwords_removed_tokens.append(item)
+                messages_dict[msg_id] = stopwords_removed_tokens
+
     for k, v in keywords_dict.items():
         print keywords[k], len(v)
 
-    return keywords_dict
+    return keywords_dict, messages_dict
 
 def find_tweets_with_different_keywords(keywords_dict, keywords):
 
@@ -425,6 +436,58 @@ def parse_timestamp(timestamp, MONTHS):
 
     return year, month, two_digit_month, day, date, hour, minute, second
 
+def plot_before_after_keyword_wordcloud(keywords_dict, messages_dict, before_dict, after_dict, keywords):
+
+    wordcloud_dict = {}
+
+    time_marks = ["before", "after"]
+    for index, word in enumerate(keywords):
+        for mark in time_marks:
+            wordcloud_dict[str(index) + "_" + mark] = []
+    
+    for k, v in keywords_dict.items():
+        for msg_id in v:
+            stopwords_removed_tokens = messages_dict[msg_id]
+
+            if msg_id in before_dict:
+                wordcloud_dict[str(k) + "_before"] += stopwords_removed_tokens
+            elif msg_id in after_dict:
+                wordcloud_dict[str(k) + "_after"] += stopwords_removed_tokens
+
+    for k, v in wordcloud_dict.items():
+        text = ' '.join(v)
+        title = keywords[int(k.split("_")[0])] + "_" + k.split("_")[1]
+        plot_word_cloud(text, title)
+
+def build_stopsets():
+
+    stop1 = stopwords.words('english')
+
+    stop2 = []
+
+    for line in open('stopwords.txt', "r"):
+        stop2.append(line.strip())
+
+    stopset = set(stop1) | set(stop2)
+
+    return stopset
+
+def always_black(word=None, font_size=None, position=None,
+                 orientation=None, font_path=None, random_state=None):
+    """
+        Always return black color for font
+    """
+    return "black"
+
+def plot_word_cloud(text, title):
+
+    wordcloud = WordCloud(color_func=always_black, background_color='white').generate(text)
+    # Open a plot of the generated image.
+    plt.imshow(wordcloud)
+    plt.axis("off")
+    plt.title('word cloud for ' + title + ' tweets')
+    plt.savefig(title + '.png')
+
 def main():
     # mark the beginning time of process
     start = timeit.default_timer()
@@ -437,21 +500,25 @@ def main():
 
     keywords = ['suicide', 'depression', 'seek help', 'suicide lifeline', 'crisis hotline', 'Parkinson\'s', 'Robin Williams']
 
-    keywords_dict = count_all_data_keywords(fileName, keywords)
+    stopset = build_stopsets()
+
+    keywords_dict, messages_dict = count_all_data_keywords(fileName, keywords, stopset)
 
     find_tweets_with_different_keywords(keywords_dict, keywords)
 
-    # before_dict, after_dict = split_tweets_before_after_event(fileName, EVENT, MONTHS)
+    before_dict, after_dict = split_tweets_before_after_event(fileName, EVENT, MONTHS)
 
-    # count_tweets_unit_time_period(fileName, MONTHS, DAYS)
+    count_tweets_unit_time_period(fileName, MONTHS, DAYS)
 
-    # daily_words_count, daily_keyword_index_dict = count_daily_words_keywords(fileName, keywords, MONTHS)
+    daily_words_count, daily_keyword_index_dict = count_daily_words_keywords(fileName, keywords, MONTHS)
 
-    # day_keyword_rate_dict = get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count)
+    day_keyword_rate_dict = get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count)
 
-    # date_list, rate_dict = get_eachday_keyword_rate(day_keyword_rate_dict, keywords)
+    date_list, rate_dict = get_eachday_keyword_rate(day_keyword_rate_dict, keywords)
 
-    # plot_keywords_rates(date_list, rate_dict, keywords, EVENT)
+    plot_keywords_rates(date_list, rate_dict, keywords, EVENT)
+
+    plot_before_after_keyword_wordcloud(keywords_dict, messages_dict, before_dict, after_dict, keywords)
     
     ##### mark the ending time of process #####
     end = timeit.default_timer()
