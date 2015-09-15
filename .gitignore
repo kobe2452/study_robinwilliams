@@ -1,3 +1,9 @@
 venv/
 *.pyc
 *.json
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.synctex.gz
+*.class
