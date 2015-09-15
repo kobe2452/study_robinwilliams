@@ -456,7 +456,7 @@ def plot_before_after_keyword_wordcloud(keywords_dict, messages_dict, before_dic
 
     for k, v in wordcloud_dict.items():
         text = ' '.join(v)
-        title = keywords[int(k.split("_")[0])] + "_" + k.split("_")[1]
+        title = (keywords[int(k.split("_")[0])]).replace(" ", "") + "_" + k.split("_")[1]
         plot_word_cloud(text, title)
 
 def build_stopsets():
