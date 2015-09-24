@@ -23,6 +23,7 @@ def count_all_data_keywords(fileName, keywords, stopset):
     rules = process_keywords(keywords)
 
     keywords_dict = defaultdict(set)
+    users_dict = defaultdict(set)
 
     messages_dict = {}
 
@@ -41,6 +42,9 @@ def count_all_data_keywords(fileName, keywords, stopset):
                 message = tweet['text']
                 msg_id = tweet['id']
 
+                user = tweet['user']
+                user_id = user['id_str']
+
                 # ArkTweetNLP tokenizer
                 tokens = tokenizeRawTweetText(message)
 
@@ -53,8 +57,10 @@ def count_all_data_keywords(fileName, keywords, stopset):
 
                 for index, item in enumerate(rules):
                     intersection_word = set(new_tokens).intersection(item)
+                    # Tweets are found to have similar words as keywords list
                     if len(intersection_word) == len(item):
                         keywords_dict[index].add(msg_id)
+                        users_dict[index].add(user_id)
 
                         # if index == 4:
                         #     json.dump(tweet, crisis_hotline_json)
@@ -69,7 +75,12 @@ def count_all_data_keywords(fileName, keywords, stopset):
                         stopwords_removed_tokens.append(item)
                 messages_dict[msg_id] = stopwords_removed_tokens
 
+    print "keywords and the numbers of tweets:"
     for k, v in keywords_dict.items():
+        print keywords[k], len(v)
+
+    print "keywords and the numbers of users:"
+    for k, v in users_dict.items():
         print keywords[k], len(v)
 
     return keywords_dict, messages_dict
@@ -313,7 +324,8 @@ def count_daily_words_keywords(fileName, keywords, MONTHS):
                 # time information
                 timestamp = tweet['created_at']
 
-                year, month, two_digit_month, day, date, hour, minute, second = parse_timestamp(timestamp, MONTHS)
+                year, month, two_digit_month, day, date, hour, minute, second, timezone = parse_timestamp(timestamp, MONTHS)
+
                 eachday = year + two_digit_month + date
 
                 # tweet information
@@ -433,8 +445,9 @@ def parse_timestamp(timestamp, MONTHS):
     minute = timestamp.split()[4].split(":")[1]
     second = timestamp.split()[4].split(":")[2]
     two_digit_month = '%02d' % int(MONTHS.index(month)+1)
+    timezone = timestamp.split()[5]
 
-    return year, month, two_digit_month, day, date, hour, minute, second
+    return year, month, two_digit_month, day, date, hour, minute, second, timezone
 
 def plot_before_after_keyword_wordcloud(keywords_dict, messages_dict, before_dict, after_dict, keywords):
 
@@ -504,21 +517,21 @@ def main():
 
     keywords_dict, messages_dict = count_all_data_keywords(fileName, keywords, stopset)
 
-    find_tweets_with_different_keywords(keywords_dict, keywords)
+    # find_tweets_with_different_keywords(keywords_dict, keywords)
 
-    before_dict, after_dict = split_tweets_before_after_event(fileName, EVENT, MONTHS)
+    # before_dict, after_dict = split_tweets_before_after_event(fileName, EVENT, MONTHS)
 
-    count_tweets_unit_time_period(fileName, MONTHS, DAYS)
+    # count_tweets_unit_time_period(fileName, MONTHS, DAYS)
 
-    daily_words_count, daily_keyword_index_dict = count_daily_words_keywords(fileName, keywords, MONTHS)
+    # daily_words_count, daily_keyword_index_dict = count_daily_words_keywords(fileName, keywords, MONTHS)
 
-    day_keyword_rate_dict = get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count)
+    # day_keyword_rate_dict = get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count)
 
-    date_list, rate_dict = get_eachday_keyword_rate(day_keyword_rate_dict, keywords)
+    # date_list, rate_dict = get_eachday_keyword_rate(day_keyword_rate_dict, keywords)
 
-    plot_keywords_rates(date_list, rate_dict, keywords, EVENT)
+    # plot_keywords_rates(date_list, rate_dict, keywords, EVENT)
 
-    plot_before_after_keyword_wordcloud(keywords_dict, messages_dict, before_dict, after_dict, keywords)
+    # plot_before_after_keyword_wordcloud(keywords_dict, messages_dict, before_dict, after_dict, keywords)
     
     ##### mark the ending time of process #####
     end = timeit.default_timer()
