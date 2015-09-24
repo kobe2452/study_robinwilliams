@@ -375,7 +375,8 @@ def get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count):
         total_words = daily_words_count[day]
 
         rate = count / float(total_words) * 100
-        day_keyword_rate_dict[day][index] = rate
+
+        day_keyword_rate_dict[day][index] = (count, total_words, rate)
 
     return day_keyword_rate_dict
 
@@ -390,9 +391,13 @@ def get_eachday_keyword_rate(day_keyword_rate_dict, keywords):
         date = str(k[:4]) + "-" + str(k[4:6]) + "-" + str(k[6:]) 
         date_list.append(date)
 
+        # print date
+
         sorted_v = OrderedDict(sorted(v.items(), key=operator.itemgetter(0)))
         for k0, v0 in sorted_v.items():
-            rate_dict[keywords[int(k0)]].append(v0)
+            rate_dict[keywords[int(k0)]].append(v0[2])
+
+            # print keywords[int(k0)], v0
 
     return date_list, rate_dict
 
@@ -515,7 +520,7 @@ def main():
 
     stopset = build_stopsets()
 
-    keywords_dict, messages_dict = count_all_data_keywords(fileName, keywords, stopset)
+    # keywords_dict, messages_dict = count_all_data_keywords(fileName, keywords, stopset)
 
     # find_tweets_with_different_keywords(keywords_dict, keywords)
 
@@ -523,11 +528,11 @@ def main():
 
     # count_tweets_unit_time_period(fileName, MONTHS, DAYS)
 
-    # daily_words_count, daily_keyword_index_dict = count_daily_words_keywords(fileName, keywords, MONTHS)
+    daily_words_count, daily_keyword_index_dict = count_daily_words_keywords(fileName, keywords, MONTHS)
 
-    # day_keyword_rate_dict = get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count)
+    day_keyword_rate_dict = get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count)
 
-    # date_list, rate_dict = get_eachday_keyword_rate(day_keyword_rate_dict, keywords)
+    date_list, rate_dict = get_eachday_keyword_rate(day_keyword_rate_dict, keywords)
 
     # plot_keywords_rates(date_list, rate_dict, keywords, EVENT)
 
