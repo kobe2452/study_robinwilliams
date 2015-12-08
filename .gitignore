@@ -7,3 +7,6 @@ venv/
 *.log
 *.synctex.gz
 *.class
+
+oneyear_sample.txt
+oneyear_sample_POStagged.txt
