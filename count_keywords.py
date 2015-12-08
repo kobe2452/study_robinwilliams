@@ -87,6 +87,8 @@ def count_all_data_keywords(fileName, keywords, stopset):
 
 def find_tweets_with_different_keywords(keywords_dict, keywords):
 
+#    keywords = ['suicide', 'depression', 'seek help', 'suicide lifeline', 'crisis hotline', 'Parkinson\'s', 'Robin Williams']
+
     # suicide_ids = keywords_dict[0]
     # depression_ids = keywords_dict[1]
     # seekhelp_ids = keywords_dict[2]
@@ -524,19 +526,19 @@ def main():
 
     # find_tweets_with_different_keywords(keywords_dict, keywords)
 
-    # before_dict, after_dict = split_tweets_before_after_event(fileName, EVENT, MONTHS)
+    before_dict, after_dict = split_tweets_before_after_event(fileName, EVENT, MONTHS)
 
     # count_tweets_unit_time_period(fileName, MONTHS, DAYS)
 
-    daily_words_count, daily_keyword_index_dict = count_daily_words_keywords(fileName, keywords, MONTHS)
+    # daily_words_count, daily_keyword_index_dict = count_daily_words_keywords(fileName, keywords, MONTHS)
 
-    day_keyword_rate_dict = get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count)
+    # day_keyword_rate_dict = get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count)
 
-    date_list, rate_dict = get_eachday_keyword_rate(day_keyword_rate_dict, keywords)
+    # date_list, rate_dict = get_eachday_keyword_rate(day_keyword_rate_dict, keywords)
 
-    # plot_keywords_rates(date_list, rate_dict, keywords, EVENT)
+    # # plot_keywords_rates(date_list, rate_dict, keywords, EVENT)
 
-    # plot_before_after_keyword_wordcloud(keywords_dict, messages_dict, before_dict, after_dict, keywords)
+    # # plot_before_after_keyword_wordcloud(keywords_dict, messages_dict, before_dict, after_dict, keywords)
     
     ##### mark the ending time of process #####
     end = timeit.default_timer()
