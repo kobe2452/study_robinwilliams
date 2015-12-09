@@ -22,10 +22,11 @@ def count_all_data_keywords(fileName, keywords, stopset):
 
     rules = process_keywords(keywords)
 
-    keywords_dict = defaultdict(set)
-    users_dict = defaultdict(set)
+    keywords_dict = defaultdict(list)
+    users_dict = defaultdict(list)
 
     messages_dict = {}
+    tweet_keywords_dict = defaultdict(list)
 
     # crisis_hotline_json = open("crisis_hotline.json", "w")
     # media_guideline_json = open("media_guideline.json", "w")
@@ -59,8 +60,9 @@ def count_all_data_keywords(fileName, keywords, stopset):
                     intersection_word = set(new_tokens).intersection(item)
                     # Tweets are found to have similar words as keywords list
                     if len(intersection_word) == len(item):
-                        keywords_dict[index].add(msg_id)
-                        users_dict[index].add(user_id)
+                        keywords_dict[index].append(msg_id)
+                        users_dict[index].append(user_id)
+                        tweet_keywords_dict[msg_id].append(index)
 
                         # if index == 4:
                         #     json.dump(tweet, crisis_hotline_json)
@@ -75,15 +77,17 @@ def count_all_data_keywords(fileName, keywords, stopset):
                         stopwords_removed_tokens.append(item)
                 messages_dict[msg_id] = stopwords_removed_tokens
 
-    print "keywords and the numbers of tweets:"
+    print "Keyword : Number of tweets which contain the keyword:"
     for k, v in keywords_dict.items():
         print keywords[k], len(v)
 
-    print "keywords and the numbers of users:"
+    print
+
+    print "Keyword : Number of users who used the keyword:"
     for k, v in users_dict.items():
         print keywords[k], len(v)
 
-    return keywords_dict, messages_dict
+    return keywords_dict, messages_dict, users_dict, tweet_keywords_dict
 
 def find_tweets_with_different_keywords(keywords_dict, keywords):
 
@@ -98,67 +102,67 @@ def find_tweets_with_different_keywords(keywords_dict, keywords):
     # robinwilliams_ids = keywords_dict[6]
 
     print keywords[0] + " + " + keywords[1]
-    print len(set.intersection(keywords_dict[0], keywords_dict[1]))
+    print len(set.intersection(set(keywords_dict[0]), set(keywords_dict[1])))
     
     print keywords[0] + " + " + keywords[2]
-    print len(set.intersection(keywords_dict[0], keywords_dict[2]))
+    print len(set.intersection(set(keywords_dict[0]), set(keywords_dict[2])))
     
     print keywords[0] + " + " + keywords[3]
-    print len(set.intersection(keywords_dict[0], keywords_dict[3]))
+    print len(set.intersection(set(keywords_dict[0]), set(keywords_dict[3])))
 
     print keywords[0] + " + " + keywords[4]
-    print len(set.intersection(keywords_dict[0], keywords_dict[4]))
+    print len(set.intersection(set(keywords_dict[0]), set(keywords_dict[4])))
 
     print keywords[0] + " + " + keywords[5]
-    print len(set.intersection(keywords_dict[0], keywords_dict[5]))
+    print len(set.intersection(set(keywords_dict[0]), set(keywords_dict[5])))
 
     print keywords[0] + " + " + keywords[6]
-    print len(set.intersection(keywords_dict[0], keywords_dict[6]))
+    print len(set.intersection(set(keywords_dict[0]), set(keywords_dict[6])))
 
     print keywords[1] + " + " + keywords[2]
-    print len(set.intersection(keywords_dict[1], keywords_dict[2]))
+    print len(set.intersection(set(keywords_dict[1]), set(keywords_dict[2])))
 
     print keywords[1] + " + " + keywords[3]
-    print len(set.intersection(keywords_dict[1], keywords_dict[3]))
+    print len(set.intersection(set(keywords_dict[1]), set(keywords_dict[3])))
 
     print keywords[1] + " + " + keywords[4]
-    print len(set.intersection(keywords_dict[1], keywords_dict[4]))
+    print len(set.intersection(set(keywords_dict[1]), set(keywords_dict[4])))
 
     print keywords[1] + " + " + keywords[5]
-    print len(set.intersection(keywords_dict[1], keywords_dict[5]))
+    print len(set.intersection(set(keywords_dict[1]), set(keywords_dict[5])))
 
     print keywords[1] + " + " + keywords[6]
-    print len(set.intersection(keywords_dict[1], keywords_dict[6]))
+    print len(set.intersection(set(keywords_dict[1]), set(keywords_dict[6])))
 
     print keywords[2] + " + " + keywords[3]
-    print len(set.intersection(keywords_dict[2], keywords_dict[3]))
+    print len(set.intersection(set(keywords_dict[2]), set(keywords_dict[3])))
 
     print keywords[2] + " + " + keywords[4]
-    print len(set.intersection(keywords_dict[2], keywords_dict[4]))
+    print len(set.intersection(set(keywords_dict[2]), set(keywords_dict[4])))
 
     print keywords[2] + " + " + keywords[5]
-    print len(set.intersection(keywords_dict[2], keywords_dict[5]))
+    print len(set.intersection(set(keywords_dict[2]), set(keywords_dict[5])))
 
     print keywords[2] + " + " + keywords[6]
-    print len(set.intersection(keywords_dict[2], keywords_dict[6]))
+    print len(set.intersection(set(keywords_dict[2]), set(keywords_dict[6])))
 
     print keywords[3] + " + " + keywords[4]
-    print len(set.intersection(keywords_dict[3], keywords_dict[4]))
+    print len(set.intersection(set(keywords_dict[3]), set(keywords_dict[4])))
 
     print keywords[3] + " + " + keywords[5]
-    print len(set.intersection(keywords_dict[3], keywords_dict[5]))
+    print len(set.intersection(set(keywords_dict[3]), set(keywords_dict[5])))
 
     print keywords[3] + " + " + keywords[6]
-    print len(set.intersection(keywords_dict[3], keywords_dict[6]))
+    print len(set.intersection(set(keywords_dict[3]), set(keywords_dict[6])))
 
     print keywords[4] + " + " + keywords[5]
-    print len(set.intersection(keywords_dict[4], keywords_dict[5]))
+    print len(set.intersection(set(keywords_dict[4]), set(keywords_dict[5])))
 
     print keywords[4] + " + " + keywords[6]
-    print len(set.intersection(keywords_dict[4], keywords_dict[6]))
+    print len(set.intersection(set(keywords_dict[4]), set(keywords_dict[6])))
 
     print keywords[5] + " + " + keywords[6]
-    print len(set.intersection(keywords_dict[5], keywords_dict[6]))
+    print len(set.intersection(set(keywords_dict[5]), set(keywords_dict[6])))
 
 def split_tweets_before_after_event(fileName, EVENT, MONTHS):
 
@@ -166,8 +170,8 @@ def split_tweets_before_after_event(fileName, EVENT, MONTHS):
     event_month = EVENT.split()[2]
     event_year = EVENT.split()[3]
 
-    before_dict = defaultdict(int)
-    after_dict = defaultdict(int)
+    before_tweets_dict = defaultdict(int)
+    after_tweets_dict = defaultdict(int)
 
     for line in open(fileName, "r"):
         tweet = json.loads(line.decode('utf-8'))
@@ -185,23 +189,23 @@ def split_tweets_before_after_event(fileName, EVENT, MONTHS):
                 tweet_year = timestamp[3]
 
                 if int(tweet_year) > int(event_year):
-                    after_dict[msg_id] += 1
+                    after_tweets_dict[msg_id] += 1
                 elif int(tweet_year) == int(event_year):
                     if MONTHS.index(tweet_month) > MONTHS.index(event_month):
-                        after_dict[msg_id] += 1
+                        after_tweets_dict[msg_id] += 1
                     elif MONTHS.index(tweet_month) < MONTHS.index(event_month):
-                        before_dict[msg_id] += 1
+                        before_tweets_dict[msg_id] += 1
                     elif MONTHS.index(tweet_month) == MONTHS.index(event_month):
                         if tweet_date < event_date:
-                            before_dict[msg_id] += 1
+                            before_tweets_dict[msg_id] += 1
                         else:
-                            after_dict[msg_id] += 1
+                            after_tweets_dict[msg_id] += 1
 
     print "RW suicide happened on: " + EVENT
-    print "%s tweets posted before this" % str(len(before_dict))
-    print "%s tweets posted after this" % len(after_dict)
+    print "%s tweets posted before this" % str(len(before_tweets_dict))
+    print "%s tweets posted after this" % len(after_tweets_dict)
 
-    return before_dict, after_dict
+    return before_tweets_dict, after_tweets_dict
 
 def process_keywords(keywords):
     """
@@ -456,7 +460,7 @@ def parse_timestamp(timestamp, MONTHS):
 
     return year, month, two_digit_month, day, date, hour, minute, second, timezone
 
-def plot_before_after_keyword_wordcloud(keywords_dict, messages_dict, before_dict, after_dict, keywords):
+def plot_before_after_keyword_wordcloud(keywords_dict, messages_dict, before_tweets_dict, after_tweets_dict, keywords):
 
     wordcloud_dict = {}
 
@@ -469,9 +473,9 @@ def plot_before_after_keyword_wordcloud(keywords_dict, messages_dict, before_dic
         for msg_id in v:
             stopwords_removed_tokens = messages_dict[msg_id]
 
-            if msg_id in before_dict:
+            if msg_id in before_tweets_dict:
                 wordcloud_dict[str(k) + "_before"] += stopwords_removed_tokens
-            elif msg_id in after_dict:
+            elif msg_id in after_tweets_dict:
                 wordcloud_dict[str(k) + "_after"] += stopwords_removed_tokens
 
     for k, v in wordcloud_dict.items():
@@ -508,6 +512,27 @@ def plot_word_cloud(text, title):
     plt.title('word cloud for ' + title + ' tweets')
     plt.savefig(title + '.png')
 
+def compare_keyword_counts_before_after(keywords_dict, before_tweets_dict, after_tweets_dict, keywords):
+
+    keywords_before_dict = defaultdict(list)
+    keywords_after_dict = defaultdict(list)
+    
+    for k, v in keywords_dict.items():
+        keyword_index = k
+        matched_tweets = v
+
+        for msg_id in matched_tweets:
+            if msg_id in before_tweets_dict:
+                keywords_before_dict[keyword_index].append(msg_id)
+            elif msg_id in after_tweets_dict:
+                keywords_after_dict[keyword_index].append(msg_id)
+
+    print "keyword -- number of appearances before -- number of appearances after:"
+    for index, item in enumerate(keywords):
+        print item, len(keywords_before_dict[index]), len(keywords_after_dict[index])
+
+    return keywords_before_dict, keywords_after_dict
+
 def main():
     # mark the beginning time of process
     start = timeit.default_timer()
@@ -522,11 +547,13 @@ def main():
 
     stopset = build_stopsets()
 
-    # keywords_dict, messages_dict = count_all_data_keywords(fileName, keywords, stopset)
+    keywords_dict, messages_dict, users_dict, tweet_keywords_dict = count_all_data_keywords(fileName, keywords, stopset)
 
     # find_tweets_with_different_keywords(keywords_dict, keywords)
 
-    before_dict, after_dict = split_tweets_before_after_event(fileName, EVENT, MONTHS)
+    # before_tweets_dict, after_tweets_dict = split_tweets_before_after_event(fileName, EVENT, MONTHS)
+
+    # keywords_before_dict, keywords_after_dict = compare_keyword_counts_before_after(keywords_dict, before_tweets_dict, after_tweets_dict, keywords)
 
     # count_tweets_unit_time_period(fileName, MONTHS, DAYS)
 
@@ -538,7 +565,7 @@ def main():
 
     # # plot_keywords_rates(date_list, rate_dict, keywords, EVENT)
 
-    # # plot_before_after_keyword_wordcloud(keywords_dict, messages_dict, before_dict, after_dict, keywords)
+    # # plot_before_after_keyword_wordcloud(keywords_dict, messages_dict, before_tweets_dict, after_tweets_dict, keywords)
     
     ##### mark the ending time of process #####
     end = timeit.default_timer()
