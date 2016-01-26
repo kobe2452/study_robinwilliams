@@ -6,6 +6,8 @@ from NER_tagger import parse_raw_message_emoji
 from count_keywords import build_stopsets
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
+import plotly.plotly as py
+from plotly.graph_objs import *
 
 p = re.compile(r'^#*[a-z]+[\'-/]*[a-z]*$', re.UNICODE)
 pLink = re.compile(r'https*:\S+\.\w+', re.IGNORECASE)
@@ -19,6 +21,7 @@ def count_tweets_each_month(data_dir, fileName, MONTHS, stopset):
 
     month_dict = defaultdict(list)
     messages_dict = {}
+    monthly_words_count = dict()
 
     for line in open(data_dir + fileName, "r"):
         tweet = json.loads(line.decode('utf-8'))
@@ -57,6 +60,11 @@ def count_tweets_each_month(data_dir, fileName, MONTHS, stopset):
                     normalized_word = get_normalized_word(word.strip("\n"))
                     new_tokens.append(normalized_word)
 
+                try:
+                    monthly_words_count[year + two_digit_month] += len(new_tokens)
+                except KeyError:
+                    monthly_words_count[year + two_digit_month] = len(new_tokens)
+
                 stopwords_removed_tokens = []
                 for item in new_tokens:
 
@@ -73,7 +81,11 @@ def count_tweets_each_month(data_dir, fileName, MONTHS, stopset):
     for k, v in sorted(month_dict.items(), key=lambda t: t[0]):
         print k, len(v)
 
-    return month_dict, messages_dict
+    print "Numbers of normalized words in each month:"
+    for k, v in sorted(monthly_words_count.items(), key=lambda t: t[0]):
+        print k, v
+
+    return month_dict, messages_dict, monthly_words_count
 
 def get_normalized_word(word):
     """
@@ -143,6 +155,37 @@ def plot_word_cloud(text, title, img_dir):
     plt.title('word cloud for ' + title + ' tweets')
     plt.savefig(img_dir + title + '.png')
 
+def plot_word_produced_tweets(monthly_words_count, word):
+
+    month_array = []
+    count_array = []
+    for k, v in sorted(monthly_words_count.items(), key=lambda t: t[0]):        
+        month_array.append(k[:4] + '_' + k[4:])
+        count_array.append(v)
+
+    trace = Scatter(
+        x = month_array,
+        y = count_array,
+        mode = 'lines',
+        name = 'lines'
+    )
+    data = [trace]
+    layout = Layout(
+        title = 'The number of words per one month sample period that ' + word + ' produced',
+        width = 1500,
+        xaxis = XAxis(
+            title = 'each month'
+        ),
+        yaxis = YAxis(
+            title = 'numbers of normalized words'
+        )
+    )
+    fig = Figure(
+        data = data,
+        layout = layout
+    )
+    plot_url = py.plot(fig, filename = word + '_produced_words_counts.png')
+
 def main():
     # mark the beginning time of process
     start = timeit.default_timer()
@@ -168,18 +211,18 @@ def main():
 
     img_dir = "/Users/tl8313/Documents/study_robinwilliams/figures/"
 
-    # suicidelifeline_month_dict, suicidelifeline_messages = count_tweets_each_month(data_dir, suicidelifeline_json, MONTHS, stopset)
+    suicidelifeline_month_dict, suicidelifeline_messages, suicidelifeline_monthly_words_count = count_tweets_each_month(data_dir, suicidelifeline_json, MONTHS, stopset)
 
     # plot_keyword_wordcloud_each_month(suicidelifeline_messages, suicidelifeline_month_dict, keywords[3].lower(), img_dir)
 
     for word_file in zip(keywords, json_files):
-        word = word_file[0]
+        word = word_file[0].lower()
         jsonfile = word_file[1]
-        print word.lower(), jsonfile
+        print word, jsonfile
 
-        month_dict, messages = count_tweets_each_month(data_dir, jsonfile, MONTHS, stopset)
-
-        plot_keyword_wordcloud_each_month(messages, month_dict, word.lower(), img_dir)
+        month_dict, messages, monthly_words_count = count_tweets_each_month(data_dir, jsonfile, MONTHS, stopset)
+        plot_word_produced_tweets(monthly_words_count, word)
+        # plot_keyword_wordcloud_each_month(messages, month_dict, word, img_dir)
 
     ##### mark the ending time of process #####
     end = timeit.default_timer()
