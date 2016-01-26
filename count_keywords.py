@@ -7,6 +7,7 @@ from plotly.graph_objs import *
 from nltk.corpus import stopwords
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
+from NER_tagger import parse_raw_message_emoji
 
 p = re.compile(r'^#*[a-z]+[\'-/]*[a-z]*$', re.UNICODE)
 pLink = re.compile(r'https*:\S+\.\w+', re.IGNORECASE)
@@ -31,6 +32,14 @@ def count_all_data_keywords(fileName, keywords, stopset):
     # crisis_hotline_json = open("crisis_hotline.json", "w")
     # media_guideline_json = open("media_guideline.json", "w")
 
+    suicide_json = open("suicide_tweets.json", "w")
+    depression_json = open("depression_tweets.json", "w")
+    seekhelp_json = open("seek_help_tweets.json", "w")
+    suicidelifeline_json = open("suicide_lifeline_tweets.json", "w")
+    crisishotline_json = open("crisis_hotline_tweets.json", "w")
+    parkinsons_json = open("parkinsons_tweets.json", "w")
+    robinwilliams_json = open("robin_williams_tweets.json", "w")
+
     for line in open(fileName, "r"):
         tweet = json.loads(line.decode('utf-8'))
 
@@ -46,12 +55,20 @@ def count_all_data_keywords(fileName, keywords, stopset):
                 user = tweet['user']
                 user_id = user['id_str']
 
+                if "\n" in message:
+                    new_message = message.replace("\n", " ")
+                else:
+                    new_message = message
+
+                # customized function to parse messages with emoji and emoticons
+                new_message = parse_raw_message_emoji(new_message)
+
                 # ArkTweetNLP tokenizer
-                tokens = tokenizeRawTweetText(message)
+                tokens = tokenizeRawTweetText(new_message)
 
                 new_tokens = []
                 for word in tokens:
-                    normalized_word = get_normalized_word(word)
+                    normalized_word = get_normalized_word(word.strip("\n"))
                     new_tokens.append(normalized_word)
 
                 # new_tokens = stemmer_lemmatizer(tokens)
@@ -63,6 +80,35 @@ def count_all_data_keywords(fileName, keywords, stopset):
                         keywords_dict[index].append(msg_id)
                         users_dict[index].append(user_id)
                         tweet_keywords_dict[msg_id].append(index)
+
+    # keywords = ['suicide', 'depression', 'seek help', 'suicide lifeline', 'crisis hotline', 'Parkinson\'s', 'Robin Williams']
+                        if index == 0:
+                            json.dump(tweet, suicide_json)
+                            suicide_json.write("\n")
+
+                        if index == 1:
+                            json.dump(tweet, depression_json)
+                            depression_json.write("\n")
+
+                        if index == 2:
+                            json.dump(tweet, seekhelp_json)
+                            seekhelp_json.write("\n")
+
+                        if index == 3:
+                            json.dump(tweet, suicidelifeline_json)
+                            suicidelifeline_json.write("\n")
+
+                        if index == 4:
+                            json.dump(tweet, crisishotline_json)
+                            crisishotline_json.write("\n")
+
+                        if index == 5:
+                            json.dump(tweet, parkinsons_json)
+                            parkinsons_json.write("\n")
+
+                        if index == 6:
+                            json.dump(tweet, robinwilliams_json)
+                            robinwilliams_json.write("\n")
 
                         # if index == 4:
                         #     json.dump(tweet, crisis_hotline_json)
@@ -77,15 +123,9 @@ def count_all_data_keywords(fileName, keywords, stopset):
                         stopwords_removed_tokens.append(item)
                 messages_dict[msg_id] = stopwords_removed_tokens
 
-    print "Keyword : Number of tweets which contain the keyword:"
+    print "keyword :  Number of tweets : Number of users"
     for k, v in keywords_dict.items():
-        print keywords[k], len(v)
-
-    print
-
-    print "Keyword : Number of users who used the keyword:"
-    for k, v in users_dict.items():
-        print keywords[k], len(v)
+        print "%s : %d : %d" % (keywords[k], len(set(v)), len(set(users_dict[k])))
 
     return keywords_dict, messages_dict, users_dict, tweet_keywords_dict
 
@@ -223,22 +263,19 @@ def get_normalized_word(word):
     """
     Returns normalized word or None, if it doesn't have a normalized representation.
     """
-
     if pLink.match(word):
         return '[http://LINK]'
     if pMention.match(word):
         return '[@SOMEONE]'
     if type(word) is unicode:
-        # word = word.translate(punctuation).encode('ascii', 'ignore')  # find ASCII equivalents for unicode quotes
         word = word.translate(punctuation)
     if len(word) < 1:
         return None
     if word[0] == '#':
         word = word.strip('.,*;-:"\'`?!)(#').lower()
     else:
-        word = word.strip(string.punctuation).lower()
-    if not(p.match(word)):
-        return None
+        word = word.lower()
+
     return word
 
 def stemmer_lemmatizer(tokens):
@@ -249,11 +286,11 @@ def stemmer_lemmatizer(tokens):
 
 def count_tweets_unit_time_period(fileName, MONTHS, DAYS):
 
-    day_dict = defaultdict(int)
-    date_dict = defaultdict(int)
-    month_dict = defaultdict(int)
-    year_dict = defaultdict(int)
-    eachday_dict = defaultdict(int)
+    day_dict = defaultdict(list)
+    date_dict = defaultdict(list)
+    month_dict = defaultdict(list)
+    year_dict = defaultdict(list)
+    eachday_dict = defaultdict(list)
 
     for line in open(fileName, "r"):
         tweet = json.loads(line.decode('utf-8'))
@@ -264,9 +301,10 @@ def count_tweets_unit_time_period(fileName, MONTHS, DAYS):
             # Only process and analyze tweets written in English
             if language == 'en':
                 
-                user = tweet['user']
-                user_id_str = user['id_str']
-                user_id = user['id']
+                msg_id = tweet['id']
+
+                # user = tweet['user']
+                # user_id = user['id_str']
 
                 timestamp = tweet['created_at'].split()
 
@@ -278,39 +316,39 @@ def count_tweets_unit_time_period(fileName, MONTHS, DAYS):
                 two_digit_month = '%02d' % int(MONTHS.index(month)+1)
                 eachday = year + two_digit_month + date
 
-                day_dict[day] += 1
-                date_dict[date] += 1
-                month_dict[month] += 1
-                year_dict[year] += 1
-                eachday_dict[eachday] += 1
+                day_dict[day].append(msg_id)
+                date_dict[date].append(msg_id)
+                month_dict[year + two_digit_month].append(msg_id)
+                year_dict[year].append(msg_id)
+                eachday_dict[eachday].append(msg_id)
 
     print "Numbers of tweets from 1st to 31th:"
     for k, v in sorted(date_dict.items(), key=operator.itemgetter(0)):
-        print k, v
+        print k, len(v)
 
     print
 
     print "Numbers of tweets in 2014 and 2015:"
     for k, v in sorted(year_dict.items(), key=operator.itemgetter(0)):
-        print k, v
+        print k, len(v)
 
     print
 
     print "Numbers of tweets from Monday to Sunday:"
     for day in DAYS:
-        print day, day_dict[day]
+        print day, len(day_dict[day])
 
     print
 
     print "Numbers of tweets in each month:"
-    for month in MONTHS:
-        print month, month_dict[month]
+    for k, v in sorted(month_dict.items(), key=lambda t: t[0]):
+        print k, len(v)
 
     print
 
     print "Numbers of tweets in each single day:"
     for k, v in sorted(eachday_dict.items(), key=operator.itemgetter(0)):
-        print k, v
+        print k, len(v)
 
 def count_daily_words_keywords(fileName, keywords, MONTHS):
 
@@ -337,8 +375,17 @@ def count_daily_words_keywords(fileName, keywords, MONTHS):
                 # tweet information
                 message = tweet['text']
 
+                if "\n" in message:
+                    new_message = message.replace("\n", " ")
+                else:
+                    new_message = message
+
+                # customized function to parse messages with emoji and emoticons
+                new_message = parse_raw_message_emoji(new_message)
+
                 # ArkTweetNLP tokenizer
-                tokens = tokenizeRawTweetText(message)
+                tokens = tokenizeRawTweetText(new_message)
+
                 new_tokens = []
                 for word in tokens:
                     normalized_word = get_normalized_word(word)
@@ -381,6 +428,7 @@ def get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count):
         total_words = daily_words_count[day]
 
         rate = count / float(total_words) * 100
+        print day, index, count, total_words, rate
 
         day_keyword_rate_dict[day][index] = (count, total_words, rate)
 
@@ -397,13 +445,12 @@ def get_eachday_keyword_rate(day_keyword_rate_dict, keywords):
         date = str(k[:4]) + "-" + str(k[4:6]) + "-" + str(k[6:]) 
         date_list.append(date)
 
-        # print date
-
         sorted_v = OrderedDict(sorted(v.items(), key=operator.itemgetter(0)))
         for k0, v0 in sorted_v.items():
-            rate_dict[keywords[int(k0)]].append(v0[2])
 
-            # print keywords[int(k0)], v0
+            keyword = keywords[int(k0)]
+            rate = v0[2]
+            rate_dict[keyword].append(rate)
 
     return date_list, rate_dict
 
@@ -439,9 +486,9 @@ def plot_keywords_rates(date_list, rate_dict, keywords, EVENT):
     for index, item in enumerate(keywords):
 
         keyword = rate_dict[keywords[index]]
-        layout_title = "The appearance of " + item + " along the time"
-        X_title = "Six months before and after RW suicide date: " + EVENT
-        Y_title = "The ratio between number of " + item + " \\and total number of words in one day"
+        layout_title = "appearances of " + item + " : total number of words in each day along the timeline"
+        X_title = "Six months before and after RW's suicide date " + EVENT
+        Y_title = "ratio (percentage)"
         output_name = item + ' daily rate'
 
         plot_separate_keyword_rate(date_list, keyword, layout_title, X_title, Y_title, output_name)        
@@ -527,9 +574,9 @@ def compare_keyword_counts_before_after(keywords_dict, before_tweets_dict, after
             elif msg_id in after_tweets_dict:
                 keywords_after_dict[keyword_index].append(msg_id)
 
-    print "keyword -- number of appearances before -- number of appearances after:"
+    print "keyword : number of appearances BEFORE : number of appearances AFTER"
     for index, item in enumerate(keywords):
-        print item, len(keywords_before_dict[index]), len(keywords_after_dict[index])
+        print "%s : %d : %d" % ( item, len(keywords_before_dict[index]), len(keywords_after_dict[index]) )
 
     return keywords_before_dict, keywords_after_dict
 
@@ -555,7 +602,7 @@ def main():
 
     # keywords_before_dict, keywords_after_dict = compare_keyword_counts_before_after(keywords_dict, before_tweets_dict, after_tweets_dict, keywords)
 
-    # count_tweets_unit_time_period(fileName, MONTHS, DAYS)
+    count_tweets_unit_time_period(fileName, MONTHS, DAYS)
 
     # daily_words_count, daily_keyword_index_dict = count_daily_words_keywords(fileName, keywords, MONTHS)
 
@@ -563,9 +610,9 @@ def main():
 
     # date_list, rate_dict = get_eachday_keyword_rate(day_keyword_rate_dict, keywords)
 
-    # # plot_keywords_rates(date_list, rate_dict, keywords, EVENT)
+    # plot_keywords_rates(date_list, rate_dict, keywords, EVENT)
 
-    # # plot_before_after_keyword_wordcloud(keywords_dict, messages_dict, before_tweets_dict, after_tweets_dict, keywords)
+    # plot_before_after_keyword_wordcloud(keywords_dict, messages_dict, before_tweets_dict, after_tweets_dict, keywords)
     
     ##### mark the ending time of process #####
     end = timeit.default_timer()

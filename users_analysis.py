@@ -143,7 +143,7 @@ def main():
     common_users = set(before_users.keys()).intersection(after_users.keys())
     print "%d users found both before and after this" % len(common_users)
 
-    compare_common_users_changes(common_users, before_users, after_users)
+    # compare_common_users_changes(common_users, before_users, after_users)
 
     ##### mark the ending time of process #####
     end = timeit.default_timer()

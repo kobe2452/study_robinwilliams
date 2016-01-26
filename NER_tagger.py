@@ -31,6 +31,7 @@ def parse_raw_message_emoji(message):
 
     utf8_message = message.encode("utf-8")
     escaped_message = message.encode('unicode_escape')
+    new_message = ' '
 
     emoji = re.search(r'\\U', escaped_message)
 
