@@ -26,19 +26,17 @@ def count_all_data_keywords(fileName, keywords, stopset):
     keywords_dict = defaultdict(list)
     users_dict = defaultdict(list)
 
-    messages_dict = {}
+    messages_normalized_word_dict = {}
+    messages_stopwords_removed_dict = {}
     tweet_keywords_dict = defaultdict(list)
 
-    # crisis_hotline_json = open("crisis_hotline.json", "w")
-    # media_guideline_json = open("media_guideline.json", "w")
-
-    suicide_json = open("suicide_tweets.json", "w")
-    depression_json = open("depression_tweets.json", "w")
-    seekhelp_json = open("seek_help_tweets.json", "w")
-    suicidelifeline_json = open("suicide_lifeline_tweets.json", "w")
-    crisishotline_json = open("crisis_hotline_tweets.json", "w")
-    parkinsons_json = open("parkinsons_tweets.json", "w")
-    robinwilliams_json = open("robin_williams_tweets.json", "w")
+    # suicide_json = open("suicide_tweets.json", "w")
+    # depression_json = open("depression_tweets.json", "w")
+    # seekhelp_json = open("seek_help_tweets.json", "w")
+    # suicidelifeline_json = open("suicide_lifeline_tweets.json", "w")
+    # crisishotline_json = open("crisis_hotline_tweets.json", "w")
+    # parkinsons_json = open("parkinsons_tweets.json", "w")
+    # robinwilliams_json = open("robin_williams_tweets.json", "w")
 
     for line in open(fileName, "r"):
         tweet = json.loads(line.decode('utf-8'))
@@ -70,6 +68,7 @@ def count_all_data_keywords(fileName, keywords, stopset):
                 for word in tokens:
                     normalized_word = get_normalized_word(word.strip("\n"))
                     new_tokens.append(normalized_word)
+                messages_normalized_word_dict[msg_id] = new_tokens
 
                 # new_tokens = stemmer_lemmatizer(tokens)
 
@@ -110,24 +109,17 @@ def count_all_data_keywords(fileName, keywords, stopset):
                             json.dump(tweet, robinwilliams_json)
                             robinwilliams_json.write("\n")
 
-                        # if index == 4:
-                        #     json.dump(tweet, crisis_hotline_json)
-                        #     crisis_hotline_json.write("\n")
-                        # elif index == 7:
-                        #     json.dump(tweet, media_guideline_json)
-                        #     media_guideline_json.write("\n")
-
                 stopwords_removed_tokens = []
                 for item in new_tokens:
                     if (item not in stopset) and (item is not None):
                         stopwords_removed_tokens.append(item)
-                messages_dict[msg_id] = stopwords_removed_tokens
+                messages_stopwords_removed_dict[msg_id] = stopwords_removed_tokens
 
     print "keyword :  Number of tweets : Number of users"
     for k, v in keywords_dict.items():
         print "%s : %d : %d" % (keywords[k], len(set(v)), len(set(users_dict[k])))
 
-    return keywords_dict, messages_dict, users_dict, tweet_keywords_dict
+    return keywords_dict, messages_normalized_word_dict, messages_stopwords_removed_dict, users_dict, tweet_keywords_dict
 
 def find_tweets_with_different_keywords(keywords_dict, keywords):
 
@@ -507,7 +499,7 @@ def parse_timestamp(timestamp, MONTHS):
 
     return year, month, two_digit_month, day, date, hour, minute, second, timezone
 
-def plot_before_after_keyword_wordcloud(keywords_dict, messages_dict, before_tweets_dict, after_tweets_dict, keywords):
+def plot_before_after_keyword_wordcloud(keywords_dict, messages_stopwords_removed_dict, before_tweets_dict, after_tweets_dict, keywords):
 
     wordcloud_dict = {}
 
@@ -518,7 +510,7 @@ def plot_before_after_keyword_wordcloud(keywords_dict, messages_dict, before_twe
     
     for k, v in keywords_dict.items():
         for msg_id in v:
-            stopwords_removed_tokens = messages_dict[msg_id]
+            stopwords_removed_tokens = messages_stopwords_removed_dict[msg_id]
 
             if msg_id in before_tweets_dict:
                 wordcloud_dict[str(k) + "_before"] += stopwords_removed_tokens
@@ -588,13 +580,14 @@ def main():
     MONTHS = [u'Jan', u'Feb', u'Mar', u'Apr', u'May', u'Jun', u'Jul', u'Aug', u'Sep', u'Oct', u'Nov', u'Dec']
     DAYS = [u'Mon', u'Tue', u'Wed', u'Thu', u'Fri', u'Sat', u'Sun']
 
-    fileName = 'oneyear_sample.json'
+    data_dir = "/Users/tl8313/Documents/study_robinwilliams/extracted/"
+    fileName = data_dir + 'oneyear_sample.json'
 
     keywords = ['suicide', 'depression', 'seek help', 'suicide lifeline', 'crisis hotline', 'Parkinson\'s', 'Robin Williams']
 
     stopset = build_stopsets()
 
-    keywords_dict, messages_dict, users_dict, tweet_keywords_dict = count_all_data_keywords(fileName, keywords, stopset)
+    keywords_dict, messages_normalized_word_dict, messages_stopwords_removed_dict, users_dict, tweet_keywords_dict = count_all_data_keywords(fileName, keywords, stopset)
 
     # find_tweets_with_different_keywords(keywords_dict, keywords)
 
@@ -602,7 +595,7 @@ def main():
 
     # keywords_before_dict, keywords_after_dict = compare_keyword_counts_before_after(keywords_dict, before_tweets_dict, after_tweets_dict, keywords)
 
-    count_tweets_unit_time_period(fileName, MONTHS, DAYS)
+    # count_tweets_unit_time_period(fileName, MONTHS, DAYS)
 
     # daily_words_count, daily_keyword_index_dict = count_daily_words_keywords(fileName, keywords, MONTHS)
 
@@ -612,7 +605,7 @@ def main():
 
     # plot_keywords_rates(date_list, rate_dict, keywords, EVENT)
 
-    # plot_before_after_keyword_wordcloud(keywords_dict, messages_dict, before_tweets_dict, after_tweets_dict, keywords)
+    # plot_before_after_keyword_wordcloud(keywords_dict, messages_stopwords_removed_dict, before_tweets_dict, after_tweets_dict, keywords)
     
     ##### mark the ending time of process #####
     end = timeit.default_timer()

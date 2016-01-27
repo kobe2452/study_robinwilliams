@@ -3,7 +3,7 @@ import timeit, math, re, string, HTMLParser
 from collections import defaultdict
 from ark_twokenize import tokenizeRawTweetText
 from NER_tagger import parse_raw_message_emoji
-from count_keywords import build_stopsets
+from count_keywords import build_stopsets, process_keywords
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import plotly.plotly as py
@@ -67,12 +67,6 @@ def count_tweets_each_month(data_dir, fileName, MONTHS, stopset):
 
                 stopwords_removed_tokens = []
                 for item in new_tokens:
-
-                    # item = item.strip(string.punctuation).lower()
-                    # if not(re.compile(r'^#*[a-z]+[\'-/]*[a-z]*$', re.UNICODE).match(item)):
-                    #     return None
-                    # print item, type(item)
-
                     if (item not in stopset) and (item is not None):
                         stopwords_removed_tokens.append(item)
                 messages_dict[msg_id] = stopwords_removed_tokens
@@ -211,8 +205,7 @@ def main():
 
     img_dir = "/Users/tl8313/Documents/study_robinwilliams/figures/"
 
-    suicidelifeline_month_dict, suicidelifeline_messages, suicidelifeline_monthly_words_count = count_tweets_each_month(data_dir, suicidelifeline_json, MONTHS, stopset)
-
+    # suicidelifeline_month_dict, suicidelifeline_messages, suicidelifeline_monthly_words_count = count_tweets_each_month(data_dir, suicidelifeline_json, MONTHS, stopset)
     # plot_keyword_wordcloud_each_month(suicidelifeline_messages, suicidelifeline_month_dict, keywords[3].lower(), img_dir)
 
     for word_file in zip(keywords, json_files):
