@@ -115,7 +115,7 @@ def main():
     # mark the beginning time of process
     start = timeit.default_timer()
 
-    directory = '/Users/tl8313/Documents/study_robinwilliams/'
+    directory = '/Users/tl8313/Documents/study_robinwilliams/extracted/'
 
     fileName = directory + 'oneyear_sample.json'
 

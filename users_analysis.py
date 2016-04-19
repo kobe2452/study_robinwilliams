@@ -127,7 +127,8 @@ def main():
     MONTHS = [u'Jan', u'Feb', u'Mar', u'Apr', u'May', u'Jun', u'Jul', u'Aug', u'Sep', u'Oct', u'Nov', u'Dec']
     DAYS = [u'Mon', u'Tue', u'Wed', u'Thu', u'Fri', u'Sat', u'Sun']
     
-    fileName = 'oneyear_sample.json'
+    data_dir = '/Users/tl8313/Documents/study_robinwilliams/extracted/'
+    fileName = data_dir + 'oneyear_sample.json'
 
     user_profile = count_users_tweets(fileName)
     tweets_count_dict = cluster_users_by_tweets_count(user_profile)

@@ -17,7 +17,7 @@ pRetweet = re.compile(r'\brt\b', re.IGNORECASE)
 punctuation = {0x2018:0x27, 0x2019:0x27, 0x201C:0x22, 0x201D:0x22}
 h = HTMLParser.HTMLParser()
 
-def count_all_data_keywords(fileName, keywords, stopset):
+def count_all_data_keywords(fileName, keywords, stopset, before_tweets_dict, after_tweets_dict):
 
     print 'Counting keywords in file: ' + fileName
 
@@ -37,6 +37,22 @@ def count_all_data_keywords(fileName, keywords, stopset):
     # crisishotline_json = open("crisis_hotline_tweets.json", "w")
     # parkinsons_json = open("parkinsons_tweets.json", "w")
     # robinwilliams_json = open("robin_williams_tweets.json", "w")
+
+    suicide_json_0 = open("suicide_tweets_0.json", "w")
+    depression_json_0 = open("depression_tweets_0.json", "w")
+    seekhelp_json_0 = open("seek_help_tweets_0.json", "w")
+    suicidelifeline_json_0 = open("suicide_lifeline_tweets_0.json", "w")
+    crisishotline_json_0 = open("crisis_hotline_tweets_0.json", "w")
+    parkinsons_json_0 = open("parkinsons_tweets_0.json", "w")
+    robinwilliams_json_0 = open("robin_williams_tweets_0.json", "w")
+
+    suicide_json_1 = open("suicide_tweets_1.json", "w")
+    depression_json_1 = open("depression_tweets_1.json", "w")
+    seekhelp_json_1 = open("seek_help_tweets_1.json", "w")
+    suicidelifeline_json_1 = open("suicide_lifeline_tweets_1.json", "w")
+    crisishotline_json_1 = open("crisis_hotline_tweets_1.json", "w")
+    parkinsons_json_1 = open("parkinsons_tweets_1.json", "w")
+    robinwilliams_json_1 = open("robin_williams_tweets_1.json", "w")
 
     for line in open(fileName, "r"):
         tweet = json.loads(line.decode('utf-8'))
@@ -81,33 +97,63 @@ def count_all_data_keywords(fileName, keywords, stopset):
                         tweet_keywords_dict[msg_id].append(index)
 
     # keywords = ['suicide', 'depression', 'seek help', 'suicide lifeline', 'crisis hotline', 'Parkinson\'s', 'Robin Williams']
-                        if index == 0:
-                            json.dump(tweet, suicide_json)
-                            suicide_json.write("\n")
+                        if msg_id in before_tweets_dict:
+                            if index == 0:
+                                json.dump(tweet, suicide_json_0)
+                                suicide_json_0.write("\n")
 
-                        if index == 1:
-                            json.dump(tweet, depression_json)
-                            depression_json.write("\n")
+                            if index == 1:
+                                json.dump(tweet, depression_json_0)
+                                depression_json_0.write("\n")
 
-                        if index == 2:
-                            json.dump(tweet, seekhelp_json)
-                            seekhelp_json.write("\n")
+                            if index == 2:
+                                json.dump(tweet, seekhelp_json_0)
+                                seekhelp_json_0.write("\n")
 
-                        if index == 3:
-                            json.dump(tweet, suicidelifeline_json)
-                            suicidelifeline_json.write("\n")
+                            if index == 3:
+                                json.dump(tweet, suicidelifeline_json_0)
+                                suicidelifeline_json_0.write("\n")
 
-                        if index == 4:
-                            json.dump(tweet, crisishotline_json)
-                            crisishotline_json.write("\n")
+                            if index == 4:
+                                json.dump(tweet, crisishotline_json_0)
+                                crisishotline_json_0.write("\n")
 
-                        if index == 5:
-                            json.dump(tweet, parkinsons_json)
-                            parkinsons_json.write("\n")
+                            if index == 5:
+                                json.dump(tweet, parkinsons_json_0)
+                                parkinsons_json_0.write("\n")
 
-                        if index == 6:
-                            json.dump(tweet, robinwilliams_json)
-                            robinwilliams_json.write("\n")
+                            if index == 6:
+                                json.dump(tweet, robinwilliams_json_0)
+                                robinwilliams_json_0.write("\n")
+
+                        if msg_id in after_tweets_dict:
+                            if index == 0:
+                                json.dump(tweet, suicide_json_1)
+                                suicide_json_1.write("\n")
+
+                            if index == 1:
+                                json.dump(tweet, depression_json_1)
+                                depression_json_1.write("\n")
+
+                            if index == 2:
+                                json.dump(tweet, seekhelp_json_1)
+                                seekhelp_json_1.write("\n")
+
+                            if index == 3:
+                                json.dump(tweet, suicidelifeline_json_1)
+                                suicidelifeline_json_1.write("\n")
+
+                            if index == 4:
+                                json.dump(tweet, crisishotline_json_1)
+                                crisishotline_json_1.write("\n")
+
+                            if index == 5:
+                                json.dump(tweet, parkinsons_json_1)
+                                parkinsons_json_1.write("\n")
+
+                            if index == 6:
+                                json.dump(tweet, robinwilliams_json_1)
+                                robinwilliams_json_1.write("\n")
 
                 stopwords_removed_tokens = []
                 for item in new_tokens:
@@ -587,7 +633,9 @@ def main():
 
     stopset = build_stopsets()
 
-    keywords_dict, messages_normalized_word_dict, messages_stopwords_removed_dict, users_dict, tweet_keywords_dict = count_all_data_keywords(fileName, keywords, stopset)
+    before_tweets_dict, after_tweets_dict = split_tweets_before_after_event(fileName, EVENT, MONTHS)
+
+    keywords_dict, messages_normalized_word_dict, messages_stopwords_removed_dict, users_dict, tweet_keywords_dict = count_all_data_keywords(fileName, keywords, stopset, before_tweets_dict, after_tweets_dict)
 
     # find_tweets_with_different_keywords(keywords_dict, keywords)
 
