@@ -211,10 +211,34 @@ def export_samples_to_csv(samples, filename, overall_tweets):
             csv_row_data = []
             csv_row_data.append(msg_id)
             user_id = overall_tweets[msg_id][0]
-            csv_row_data.append(user_id)
+            csv_row_data.append(str(user_id))
             message = overall_tweets[msg_id][1]
+            # de-indentify tweets and remove non-printable characters
+            message = protect_info(message)
             csv_row_data.append(unicode(message).encode("utf-8"))
             writer.writerow(csv_row_data)
+
+def protect_info(message):
+
+    # de-indentify tweets and remove non-printable characters
+    message = re.sub('\s+', ' ', message)
+    message = re.sub('(@\S+)', '@SOMEONE', message)
+    message = re.sub('https?:\/\/.*[\r\n]*', 'http://LINK', message)        
+    message = filter(lambda x: x in string.printable, message)
+
+    return message
+
+def output_samples_to_separate_files(overall_tweets, matched_tweets, case1_matched, case2_matched, case3_matched, case4_matched, case5_matched, case6_matched):
+
+    for index, matched in enumerate([case1_matched, case2_matched, case3_matched, case4_matched, case5_matched, case6_matched]):
+        print index+1, len(matched)
+        samples = randomize_samples(matched.keys(), 200)
+        filename = data_dir + str(index+1) + "_200.csv"
+        print filename
+        export_samples_to_csv(samples, filename, overall_tweets)
+
+    # notmatched = list(set(overall_long_tweets.keys()) - set(matched_tweets.keys()))
+    # export_samples_to_csv(randomize_samples(notmatched, 100), data_dir + "7.csv", overall_tweets)
 
 def main():
     # mark the beginning time of process
@@ -229,15 +253,20 @@ def main():
     print "%d tweets have more than 5 tokens" % len(overall_long_tweets)
     print "%d tweets matched by the text filters" % len(matched_tweets)
 
-    # for index, matched in enumerate([case1_matched, case2_matched, case3_matched, case4_matched, case5_matched, case6_matched]):
-    #     print index+1, len(matched)
-    #     samples = randomize_samples(matched.keys(), 100)
-    #     filename = data_dir + str(index+1) + ".csv"
-    #     print filename
-    #     export_samples_to_csv(samples, filename, overall_tweets)
+    # output_samples_to_separate_files(overall_tweets, matched_tweets, case1_matched, case2_matched, case3_matched, case4_matched, case5_matched, case6_matched)
 
-    notmatched = list(set(overall_long_tweets.keys()) - set(matched_tweets.keys()))
-    export_samples_to_csv(randomize_samples(notmatched, 100), data_dir + "7.csv", overall_tweets)
+    total_samples = []
+    filename = data_dir + "keywords_source_samples_1200.csv"
+
+    for index, matched in enumerate([case1_matched, case2_matched, case3_matched, case4_matched, case5_matched, case6_matched]):
+        print index+1, len(matched)
+        samples = randomize_samples(matched.keys(), 200)
+        total_samples += samples
+
+    random.shuffle(total_samples)
+    print filename
+    print len(total_samples)
+    export_samples_to_csv(total_samples, filename, overall_tweets)
 
     ##### mark the ending time of process #####
     end = timeit.default_timer()
