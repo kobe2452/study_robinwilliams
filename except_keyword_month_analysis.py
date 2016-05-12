@@ -206,11 +206,12 @@ def main():
         for count_dict in [x for x in keyword_monthly_words_count_list if x is not suicide_monthly_words_count]:
             total_words += count_dict[k]
         percentage = v / float(total_words) * 100
-        print k, percentage
+        # print k, percentage
         month_array.append(k[:4] + '_' + k[4:])
         suicide_except_ratio_array.append(percentage)
 
-    plot_word_produced_tweets(month_array, suicide_except_ratio_array, keywords[0])
+    print len(month_array), len(suicide_except_ratio_array)
+    # plot_word_produced_tweets(month_array, suicide_except_ratio_array, keywords[0])
 
     ##### 1 depression #####
     print "depression"
@@ -231,11 +232,12 @@ def main():
         for count_dict in [x for x in keyword_monthly_words_count_list if x is not depression_monthly_words_count]:
             total_words += count_dict[k]
         percentage = v / float(total_words) * 100
-        print k, percentage
+        # print k, percentage
         month_array.append(k[:4] + '_' + k[4:])
         depression_except_ratio_array.append(percentage)
 
-    plot_word_produced_tweets(month_array, depression_except_ratio_array, keywords[1])
+    print len(month_array), len(depression_except_ratio_array)
+    # plot_word_produced_tweets(month_array, depression_except_ratio_array, keywords[1])
 
     ##### 2 seek help #####
     print "seek help"
@@ -256,11 +258,12 @@ def main():
         for count_dict in [x for x in keyword_monthly_words_count_list if x is not seekhelp_monthly_words_count]:
             total_words += count_dict[k]
         percentage = v / float(total_words) * 100
-        print k, percentage
+        # print k, percentage
         month_array.append(k[:4] + '_' + k[4:])
         seekhelp_except_ratio_array.append(percentage)
 
-    plot_word_produced_tweets(month_array, seekhelp_except_ratio_array, keywords[2])
+    print len(month_array), len(seekhelp_except_ratio_array)
+    # plot_word_produced_tweets(month_array, seekhelp_except_ratio_array, keywords[2])
 
     ##### 3 suicide lifeline #####
     print "suicide lifeline"
@@ -281,11 +284,12 @@ def main():
         for count_dict in [x for x in keyword_monthly_words_count_list if x is not suicidelifeline_monthly_words_count]:
             total_words += count_dict[k]
         percentage = v / float(total_words) * 100
-        print k, percentage
+        # print k, percentage
         month_array.append(k[:4] + '_' + k[4:])
         suicidelifeline_except_ratio_array.append(percentage)
 
-    plot_word_produced_tweets(month_array, suicidelifeline_except_ratio_array, keywords[3])
+    print len(month_array), len(suicidelifeline_except_ratio_array)
+    # plot_word_produced_tweets(month_array, suicidelifeline_except_ratio_array, keywords[3])
 
     ##### 4 crisis hotline #####
     print "crisis hotline"
@@ -306,11 +310,12 @@ def main():
         for count_dict in [x for x in keyword_monthly_words_count_list if x is not crisishotline_monthly_words_count]:
             total_words += count_dict[k]
         percentage = v / float(total_words) * 100
-        print k, percentage
+        # print k, percentage
         month_array.append(k[:4] + '_' + k[4:])
         crisishotline_except_ratio_array.append(percentage)
 
-    plot_word_produced_tweets(month_array, crisishotline_except_ratio_array, keywords[4])
+    print len(month_array), len(crisishotline_except_ratio_array)
+    # plot_word_produced_tweets(month_array, crisishotline_except_ratio_array, keywords[4])
 
     ##### 5 Parkinson's disease #####
     print "Parkinson\'s disease"
@@ -331,11 +336,12 @@ def main():
         for count_dict in [x for x in keyword_monthly_words_count_list if x is not parkinsons_monthly_words_count]:
             total_words += count_dict[k]
         percentage = v / float(total_words) * 100
-        print k, percentage
+        # print k, percentage
         month_array.append(k[:4] + '_' + k[4:])
         parkinsons_except_ratio_array.append(percentage)
 
-    plot_word_produced_tweets(month_array, parkinsons_except_ratio_array, keywords[5])
+    print len(month_array), len(parkinsons_except_ratio_array)
+    # plot_word_produced_tweets(month_array, parkinsons_except_ratio_array, keywords[5])
 
     ##### 6 Robin Williams #####
     print "Robin Williams"
@@ -348,19 +354,42 @@ def main():
                 yearmonth = robinwilliams_month_dict[msg_id]
                 robinwilliams_except_month_dict[yearmonth] += len(new_tokens)
 
-    month_array = []
-    robinwilliams_except_ratio_array = []
+    # month_array = []
+    print month_array
+    robinwilliams_except_ratio_array = [0] * len(month_array)
 
     for k, v in sorted(robinwilliams_except_month_dict.items(), key=lambda t: t[0]):
         total_words = 0
         for count_dict in [x for x in keyword_monthly_words_count_list if x is not robinwilliams_monthly_words_count]:
             total_words += count_dict[k]
         percentage = v / float(total_words) * 100
-        print k, percentage
-        month_array.append(k[:4] + '_' + k[4:])
-        robinwilliams_except_ratio_array.append(percentage)
+        # print k, percentage
+        # month_array.append(k[:4] + '_' + k[4:])
+        index = month_array.index(k[:4] + '_' + k[4:])
+        robinwilliams_except_ratio_array[index] = percentage
 
-    plot_word_produced_tweets(month_array, robinwilliams_except_ratio_array, keywords[6])
+    print len(month_array), len(robinwilliams_except_ratio_array)
+    # plot_word_produced_tweets(month_array, robinwilliams_except_ratio_array, keywords[6])
+
+    ##### integrate keywords figures into one united ##### 
+    plt.figure(figsize=(15,5))
+
+    x = range(len(month_array))
+    plt.xticks(x, month_array)
+
+    plt.plot(x, suicide_except_ratio_array, marker='o', linestyle='-', color='r', label=keywords[0])
+    plt.plot(x, depression_except_ratio_array, marker='^', linestyle='-', color='b', label=keywords[1])
+    plt.plot(x, seekhelp_except_ratio_array, marker='*', linestyle='-', color='k', label=keywords[2])
+    plt.plot(x, suicidelifeline_except_ratio_array, marker='+', linestyle='-', color='g', label=keywords[3])
+    plt.plot(x, crisishotline_except_ratio_array, marker='p', linestyle='-', color='m', label=keywords[4])
+    plt.plot(x, parkinsons_except_ratio_array, marker='x', linestyle='-', color='y', label=keywords[5])
+    plt.plot(x, robinwilliams_except_ratio_array, marker='s', linestyle='-', color='c', label=keywords[6])
+    plt.xlabel('each month from 2014-02 to 2015-02')
+    plt.ylabel('percentage of one specific keyword (%)')
+    plt.title('From the tweets drawn from all the queries EXCEPT one specific keyword')
+    plt.legend(loc = 'best', fontsize = 'small')
+
+    plt.savefig('from-the-tweets-drawn-from-all-the-keyword-queries-except-one.png', bbox_inches = 'tight')
 
     ##### mark the ending time of process #####
     end = timeit.default_timer()

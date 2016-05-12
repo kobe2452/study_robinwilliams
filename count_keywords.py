@@ -639,11 +639,11 @@ def main():
 
     # find_tweets_with_different_keywords(keywords_dict, keywords)
 
-    # before_tweets_dict, after_tweets_dict = split_tweets_before_after_event(fileName, EVENT, MONTHS)
+    before_tweets_dict, after_tweets_dict = split_tweets_before_after_event(fileName, EVENT, MONTHS)
 
-    # keywords_before_dict, keywords_after_dict = compare_keyword_counts_before_after(keywords_dict, before_tweets_dict, after_tweets_dict, keywords)
+    keywords_before_dict, keywords_after_dict = compare_keyword_counts_before_after(keywords_dict, before_tweets_dict, after_tweets_dict, keywords)
 
-    # count_tweets_unit_time_period(fileName, MONTHS, DAYS)
+    count_tweets_unit_time_period(fileName, MONTHS, DAYS)
 
     # daily_words_count, daily_keyword_index_dict = count_daily_words_keywords(fileName, keywords, MONTHS)
 

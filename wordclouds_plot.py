@@ -206,17 +206,67 @@ def main():
 
     img_dir = "/Users/tl8313/Documents/study_robinwilliams/figures/"
 
-    suicidelifeline_month_dict, suicidelifeline_messages, suicidelifeline_monthly_words_count = count_tweets_each_month(data_dir, oneyeardata_json, MONTHS, stopset)
-    plot_keyword_wordcloud_each_month(suicidelifeline_messages, suicidelifeline_month_dict, "overall_keywords", img_dir)
+    oneyeardata_month_dict, oneyeardata_messages, oneyeardata_monthly_words_count = count_tweets_each_month(data_dir, oneyeardata_json, MONTHS, stopset)
+    # plot_keyword_wordcloud_each_month(oneyeardata_messages, oneyeardata_month_dict, "overall_keywords", img_dir)
 
-    # for word_file in zip(keywords, json_files):
-    #     word = word_file[0].lower()
-    #     jsonfile = word_file[1]
-    #     print word, jsonfile
+    month_array = []
+    for k, v in sorted(oneyeardata_monthly_words_count.items(), key=lambda t: t[0]):        
+        month_array.append(k[:4] + '_' + k[4:])
+    print month_array
 
-    #     month_dict, messages, monthly_words_count = count_tweets_each_month(data_dir, jsonfile, MONTHS, stopset)
+    suicide_count_array = []
+    depression_count_array = []
+    seekhelp_count_array = []
+    suicidelifeline_count_array = []
+    crisishotline_count_array = []
+    parkinsons_count_array = []
+    robinwilliams_count_array = []
+
+    for index, word_file in enumerate(zip(keywords, json_files)):
+        word = word_file[0].lower()
+        jsonfile = word_file[1]
+        print index, word, jsonfile
+
+        month_dict, messages, monthly_words_count = count_tweets_each_month(data_dir, jsonfile, MONTHS, stopset)
+
+        for k, v in sorted(monthly_words_count.items(), key=lambda t: t[0]):
+            if index == 0:        
+                suicide_count_array.append(v)
+            elif index == 1:
+                depression_count_array.append(v)
+            elif index == 2:
+                seekhelp_count_array.append(v)
+            elif index == 3:
+                suicidelifeline_count_array.append(v)
+            elif index == 4:
+                crisishotline_count_array.append(v)
+            elif index == 5:
+                parkinsons_count_array.append(v)
+            elif index == 6:
+                robinwilliams_count_array.append(v)
+
     #     plot_word_produced_tweets(monthly_words_count, word)
     #     # plot_keyword_wordcloud_each_month(messages, month_dict, word, img_dir)
+
+    ##### integrate keywords figures into one united ##### 
+    plt.figure(figsize=(15,5))
+
+    x = range(len(month_array))
+    plt.xticks(x, month_array)
+
+    plt.plot(x, suicide_count_array, marker='o', linestyle='-', color='r', label=keywords[0])
+    plt.plot(x, depression_count_array, marker='^', linestyle='-', color='b', label=keywords[1])
+    plt.plot(x, seekhelp_count_array, marker='*', linestyle='-', color='k', label=keywords[2])
+    plt.plot(x, suicidelifeline_count_array, marker='+', linestyle='-', color='g', label=keywords[3])
+    plt.plot(x, crisishotline_count_array, marker='p', linestyle='-', color='m', label=keywords[4])
+    plt.plot(x, parkinsons_count_array, marker='x', linestyle='-', color='y', label=keywords[5])
+    plt.plot(x, robinwilliams_count_array, marker='s', linestyle='-', color='c', label=keywords[6])
+    plt.xlabel('each month from 2014-02 to 2015-02')
+    plt.ylabel('numbers of normalized words')
+    plt.title('The number of words per one month sample period each keyword produced')
+    plt.legend(loc = 'best', fontsize = 'small')
+
+    plt.savefig('keyword_produced_words_counts.png', bbox_inches = 'tight')
 
     ##### mark the ending time of process #####
     end = timeit.default_timer()
