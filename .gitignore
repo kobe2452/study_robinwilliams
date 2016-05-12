@@ -8,6 +8,7 @@ venv/
 *.synctex.gz
 *.class
 *.zip
+*.npy
 
 oneyear_sample.txt
 oneyear_sample_POStagged.txt
