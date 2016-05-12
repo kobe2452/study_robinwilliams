@@ -3,12 +3,13 @@ import numpy as np
 from collections import defaultdict
 import ujson as json
 import timeit, math
+import matplotlib.pyplot as plt
 
 from sklearn import cross_validation, svm
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.grid_search import GridSearchCV
 from sklearn.learning_curve import learning_curve, validation_curve
-from sklearn.metrics import classification_report, precision_recall_curve
+from sklearn.metrics import classification_report, precision_recall_curve, accuracy_score, precision_score, recall_score, f1_score
 from sklearn.preprocessing import label_binarize
 from sklearn.externals import joblib
 
@@ -80,13 +81,6 @@ def print_most_significant_features(coefficients, vectorizer, N):
         print '%s (%s)' % (feature_names[t[0]], t[1])
         
 def plot_learning_curves(clf, scoring, X, y):
-    try:
-        imp.find_module('matplotlib')
-    except ImportError:
-        "matplotlib module not found, can't plot learning curves"
-        return
-    
-    import matplotlib.pyplot as plt
 
     train_sizes, train_scores, test_scores = learning_curve(clf, X, y, train_sizes=np.linspace(0.05, 1.0, 10), scoring=scoring, cv=10)
     
@@ -142,8 +136,52 @@ def train_classifier(X_train, y_train, scoring):
 
     print_grid_search_results(clf, scoring)
     print
-    
+
+    print_CV_mean_score(X_train, y_train, clf)
+    print
+
+    plot_CV_predictions(X_train, y_train, clf, scoring)
+
     return clf
+
+def print_CV_mean_score(X_train, y_train, clf):
+
+    print "Computing cross-validated mean score:"
+
+    accuracy_scores = cross_validation.cross_val_score(clf, X_train, y_train, cv=10, scoring='accuracy', n_jobs=-1)
+    print("The mean accuracy_scores and the 95pct confidence interval: %0.2f (+/- %0.2f)" % (accuracy_scores.mean(), accuracy_scores.std() * 2))
+
+    precision_scores = cross_validation.cross_val_score(clf, X_train, y_train, cv=10, scoring='precision', n_jobs=-1)
+    print("The mean precision_scores and the 95pct confidence interval: %0.2f (+/- %0.2f)" % (precision_scores.mean(), precision_scores.std() * 2))
+
+    recall_scores = cross_validation.cross_val_score(clf, X_train, y_train, cv=10, scoring='recall', n_jobs=-1)
+    print("The mean recall_scores and the 95pct confidence interval: %0.2f (+/- %0.2f)" % (recall_scores.mean(), recall_scores.std() * 2))
+
+    f1_scores = cross_validation.cross_val_score(clf, X_train, y_train, cv=10, scoring='f1', n_jobs=-1)
+    print("The mean f1_scores and the 95pct confidence interval: %0.2f (+/- %0.2f)" % (f1_scores.mean(), f1_scores.std() * 2))
+
+    average_precision_scores = cross_validation.cross_val_score(clf, X_train, y_train, cv=10, scoring='average_precision', n_jobs=-1)
+    print("The mean average_precision_scores and the 95pct confidence interval: %0.2f (+/- %0.2f)" % (average_precision_scores.mean(), average_precision_scores.std() * 2))
+
+def plot_CV_predictions(X_train, y_train, clf, scoring):
+
+    print "Obtaining predictions by cross-validation:"
+
+    predicted = cross_validation.cross_val_predict(clf, X_train, y_train, cv=10, n_jobs=-1)
+
+    print accuracy_score(y_train, predicted)
+    print precision_score(y_train, predicted)
+    print recall_score(y_train, predicted)
+    print f1_score(y_train, predicted)
+    print classification_report(y_train, predicted)
+
+    # fig, ax = plt.subplots()
+    # ax.scatter(y_train, predicted)
+    # ax.plot([y_train.min(), y_train.max()], [y_train.min(), y_train.max()], 'k--', lw=4)
+    # ax.set_xlabel('Annotated')
+    # ax.set_ylabel('Predicted')
+    # plt.savefig('CV_predictions' + scoring + '.png')
+    # # plt.show()
 
 def print_grid_search_results(clf, scoring):
     print 'Grid scores based on score function %s:' % (scoring)
@@ -200,18 +238,20 @@ def main():
     check_preprocessed_data()
     
     X, y, vectorizer = load_dataset(words_work_file_name, norm_tweets_file_name)
-    # joblib.dump(vectorizer, 'amt_1+2_pro_vectorizer_20160401.pkl')
+    joblib.dump(vectorizer, 'vectorizer.pkl')
 
     # split the data into train/test sets making test set one tenth of all data
-    X_train, X_test, y_train, y_test = cross_validation.train_test_split(X, y, test_size=0.1, random_state=5)
+    X_train, X_test, y_train, y_test = cross_validation.train_test_split(X, y, test_size=0, random_state=5)
+    for item in [X_train, y_train, X_test, y_test]:
+        print item.shape
 
     # scoring = 'roc_auc', 'precision', 'f1', 'recall', 'accuracy'
-    scoring = 'accuracy'
+    scoring = 'roc_auc'
 
     clf = train_classifier(X_train, y_train, scoring)
-    # joblib.dump(clf, 'amt_1+2_pro_' + scoring + '_SVC_20160401.pkl')
+    joblib.dump(clf, scoring + '_SVC.pkl')
 
-    analyze_classifier(clf, X, y, X_test, y_test, vectorizer)
+    # analyze_classifier(clf, X, y, X_test, y_test, vectorizer)
 
     print 'Done.'
 

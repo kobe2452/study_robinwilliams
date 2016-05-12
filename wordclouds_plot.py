@@ -200,22 +200,23 @@ def main():
     crisishotline_json = "crisis_hotline.json"
     parkinsons_json = "parkinsons.json"
     robinwilliams_json = "robin_williams.json"
+    oneyeardata_json = "oneyear_sample.json"
 
     json_files = [suicide_json, depression_json, seekhelp_json, suicidelifeline_json, crisishotline_json, parkinsons_json, robinwilliams_json]
 
     img_dir = "/Users/tl8313/Documents/study_robinwilliams/figures/"
 
-    # suicidelifeline_month_dict, suicidelifeline_messages, suicidelifeline_monthly_words_count = count_tweets_each_month(data_dir, suicidelifeline_json, MONTHS, stopset)
-    # plot_keyword_wordcloud_each_month(suicidelifeline_messages, suicidelifeline_month_dict, keywords[3].lower(), img_dir)
+    suicidelifeline_month_dict, suicidelifeline_messages, suicidelifeline_monthly_words_count = count_tweets_each_month(data_dir, oneyeardata_json, MONTHS, stopset)
+    plot_keyword_wordcloud_each_month(suicidelifeline_messages, suicidelifeline_month_dict, "overall_keywords", img_dir)
 
-    for word_file in zip(keywords, json_files):
-        word = word_file[0].lower()
-        jsonfile = word_file[1]
-        print word, jsonfile
+    # for word_file in zip(keywords, json_files):
+    #     word = word_file[0].lower()
+    #     jsonfile = word_file[1]
+    #     print word, jsonfile
 
-        month_dict, messages, monthly_words_count = count_tweets_each_month(data_dir, jsonfile, MONTHS, stopset)
-        plot_word_produced_tweets(monthly_words_count, word)
-        # plot_keyword_wordcloud_each_month(messages, month_dict, word, img_dir)
+    #     month_dict, messages, monthly_words_count = count_tweets_each_month(data_dir, jsonfile, MONTHS, stopset)
+    #     plot_word_produced_tweets(monthly_words_count, word)
+    #     # plot_keyword_wordcloud_each_month(messages, month_dict, word, img_dir)
 
     ##### mark the ending time of process #####
     end = timeit.default_timer()
