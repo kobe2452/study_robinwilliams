@@ -1,5 +1,5 @@
 import ujson as json
-import timeit, math, re, string, HTMLParser
+import timeit, math, re, string, HTMLParser, csv
 from collections import defaultdict
 from ark_twokenize import tokenizeRawTweetText
 from NER_tagger import parse_raw_message_emoji
@@ -248,25 +248,48 @@ def main():
     #     plot_word_produced_tweets(monthly_words_count, word)
     #     # plot_keyword_wordcloud_each_month(messages, month_dict, word, img_dir)
 
-    ##### integrate keywords figures into one united ##### 
-    plt.figure(figsize=(15,5))
+    # ##### integrate keywords figures into one united ##### 
+    # plt.figure(figsize=(15,5))
 
-    x = range(len(month_array))
-    plt.xticks(x, month_array)
+    # x = range(len(month_array))
+    # plt.xticks(x, month_array)
 
-    plt.plot(x, suicide_count_array, marker='o', linestyle='-', color='r', label=keywords[0])
-    plt.plot(x, depression_count_array, marker='^', linestyle='-', color='b', label=keywords[1])
-    plt.plot(x, seekhelp_count_array, marker='*', linestyle='-', color='k', label=keywords[2])
-    plt.plot(x, suicidelifeline_count_array, marker='+', linestyle='-', color='g', label=keywords[3])
-    plt.plot(x, crisishotline_count_array, marker='p', linestyle='-', color='m', label=keywords[4])
-    plt.plot(x, parkinsons_count_array, marker='x', linestyle='-', color='y', label=keywords[5])
-    plt.plot(x, robinwilliams_count_array, marker='s', linestyle='-', color='c', label=keywords[6])
-    plt.xlabel('each month from 2014-02 to 2015-02')
-    plt.ylabel('numbers of normalized words')
-    plt.title('The number of words per one month sample period each keyword produced')
-    plt.legend(loc = 'best', fontsize = 'small')
+    # plt.plot(x, suicide_count_array, marker='o', linestyle='-', color='r', label=keywords[0])
+    # plt.plot(x, depression_count_array, marker='^', linestyle='-', color='b', label=keywords[1])
+    # plt.plot(x, seekhelp_count_array, marker='*', linestyle='-', color='k', label=keywords[2])
+    # plt.plot(x, suicidelifeline_count_array, marker='+', linestyle='-', color='g', label=keywords[3])
+    # plt.plot(x, crisishotline_count_array, marker='p', linestyle='-', color='m', label=keywords[4])
+    # plt.plot(x, parkinsons_count_array, marker='x', linestyle='-', color='y', label=keywords[5])
+    # plt.plot(x, robinwilliams_count_array, marker='s', linestyle='-', color='c', label=keywords[6])
+    # plt.xlabel('each month from 2014-02 to 2015-02')
+    # plt.ylabel('numbers of normalized words')
+    # plt.title('The number of words per one month sample period each keyword produced')
+    # plt.legend(loc = 'best', fontsize = 'small')
 
-    plt.savefig('keyword_produced_words_counts.png', bbox_inches = 'tight')
+    # plt.savefig('keyword_produced_words_counts.png', bbox_inches = 'tight')
+
+    list_all = zip(month_array, suicide_count_array, depression_count_array, seekhelp_count_array, suicidelifeline_count_array, crisishotline_count_array, parkinsons_count_array, robinwilliams_count_array)
+
+    with open('normalized_words_numbers.csv', 'wb') as f:
+        writer = csv.writer(f)
+
+        # Create headers in a row, from 1 to the end of onelist
+        headers = []
+        headers.append('time')
+        headers.append('suicide')
+        headers.append('depression')
+        headers.append('seek help')
+        headers.append('suicide lifeline')
+        headers.append('crisis hotline')
+        headers.append('Parkinson\'s')
+        headers.append('Robin Williams')
+        writer.writerow(headers)
+
+        # # export data from onelist to a list
+        # attributes = ['msg_id', 'message']
+
+        for onelist in list_all:
+            writer.writerow(onelist)
 
     ##### mark the ending time of process #####
     end = timeit.default_timer()
