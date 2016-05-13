@@ -1,5 +1,5 @@
 import ujson as json
-import timeit, math, HTMLParser, re, string, nltk, operator
+import timeit, math, HTMLParser, re, string, nltk, operator, csv
 from ark_twokenize import tokenizeRawTweetText
 from collections import defaultdict, OrderedDict
 import plotly.plotly as py
@@ -17,9 +17,9 @@ pRetweet = re.compile(r'\brt\b', re.IGNORECASE)
 punctuation = {0x2018:0x27, 0x2019:0x27, 0x201C:0x22, 0x201D:0x22}
 h = HTMLParser.HTMLParser()
 
-def count_all_data_keywords(fileName, keywords, stopset, before_tweets_dict, after_tweets_dict):
+def count_all_data_keywords(oneyeardata_json, keywords, stopset, before_tweets_dict, after_tweets_dict):
 
-    print 'Counting keywords in file: ' + fileName
+    print 'Counting keywords in file: ' + oneyeardata_json
 
     rules = process_keywords(keywords)
 
@@ -38,23 +38,23 @@ def count_all_data_keywords(fileName, keywords, stopset, before_tweets_dict, aft
     # parkinsons_json = open("parkinsons_tweets.json", "w")
     # robinwilliams_json = open("robin_williams_tweets.json", "w")
 
-    suicide_json_0 = open("suicide_tweets_0.json", "w")
-    depression_json_0 = open("depression_tweets_0.json", "w")
-    seekhelp_json_0 = open("seek_help_tweets_0.json", "w")
-    suicidelifeline_json_0 = open("suicide_lifeline_tweets_0.json", "w")
-    crisishotline_json_0 = open("crisis_hotline_tweets_0.json", "w")
-    parkinsons_json_0 = open("parkinsons_tweets_0.json", "w")
-    robinwilliams_json_0 = open("robin_williams_tweets_0.json", "w")
+    # suicide_json_0 = open("suicide_tweets_0.json", "w")
+    # depression_json_0 = open("depression_tweets_0.json", "w")
+    # seekhelp_json_0 = open("seek_help_tweets_0.json", "w")
+    # suicidelifeline_json_0 = open("suicide_lifeline_tweets_0.json", "w")
+    # crisishotline_json_0 = open("crisis_hotline_tweets_0.json", "w")
+    # parkinsons_json_0 = open("parkinsons_tweets_0.json", "w")
+    # robinwilliams_json_0 = open("robin_williams_tweets_0.json", "w")
 
-    suicide_json_1 = open("suicide_tweets_1.json", "w")
-    depression_json_1 = open("depression_tweets_1.json", "w")
-    seekhelp_json_1 = open("seek_help_tweets_1.json", "w")
-    suicidelifeline_json_1 = open("suicide_lifeline_tweets_1.json", "w")
-    crisishotline_json_1 = open("crisis_hotline_tweets_1.json", "w")
-    parkinsons_json_1 = open("parkinsons_tweets_1.json", "w")
-    robinwilliams_json_1 = open("robin_williams_tweets_1.json", "w")
+    # suicide_json_1 = open("suicide_tweets_1.json", "w")
+    # depression_json_1 = open("depression_tweets_1.json", "w")
+    # seekhelp_json_1 = open("seek_help_tweets_1.json", "w")
+    # suicidelifeline_json_1 = open("suicide_lifeline_tweets_1.json", "w")
+    # crisishotline_json_1 = open("crisis_hotline_tweets_1.json", "w")
+    # parkinsons_json_1 = open("parkinsons_tweets_1.json", "w")
+    # robinwilliams_json_1 = open("robin_williams_tweets_1.json", "w")
 
-    for line in open(fileName, "r"):
+    for line in open(oneyeardata_json, "r"):
         tweet = json.loads(line.decode('utf-8'))
 
         if 'lang' in tweet:                
@@ -242,7 +242,7 @@ def find_tweets_with_different_keywords(keywords_dict, keywords):
     print keywords[5] + " + " + keywords[6]
     print len(set.intersection(set(keywords_dict[5]), set(keywords_dict[6])))
 
-def split_tweets_before_after_event(fileName, EVENT, MONTHS):
+def split_tweets_before_after_event(oneyeardata_json, EVENT, MONTHS):
 
     event_date = EVENT.split()[1]
     event_month = EVENT.split()[2]
@@ -251,7 +251,7 @@ def split_tweets_before_after_event(fileName, EVENT, MONTHS):
     before_tweets_dict = defaultdict(int)
     after_tweets_dict = defaultdict(int)
 
-    for line in open(fileName, "r"):
+    for line in open(oneyeardata_json, "r"):
         tweet = json.loads(line.decode('utf-8'))
 
         if 'lang' in tweet:                
@@ -322,7 +322,7 @@ def stemmer_lemmatizer(tokens):
 
     return [wnl.lemmatize(get_normalized_word(t)) for t in tokens]
 
-def count_tweets_unit_time_period(fileName, MONTHS, DAYS):
+def count_tweets_unit_time_period(oneyeardata_json, MONTHS, DAYS):
 
     day_dict = defaultdict(list)
     date_dict = defaultdict(list)
@@ -330,7 +330,7 @@ def count_tweets_unit_time_period(fileName, MONTHS, DAYS):
     year_dict = defaultdict(list)
     eachday_dict = defaultdict(list)
 
-    for line in open(fileName, "r"):
+    for line in open(oneyeardata_json, "r"):
         tweet = json.loads(line.decode('utf-8'))
 
         if 'lang' in tweet:                
@@ -360,42 +360,64 @@ def count_tweets_unit_time_period(fileName, MONTHS, DAYS):
                 year_dict[year].append(msg_id)
                 eachday_dict[eachday].append(msg_id)
 
+    date_k_list = []
+    date_v_list = []
     print "Numbers of tweets from 1st to 31th:"
     for k, v in sorted(date_dict.items(), key=operator.itemgetter(0)):
-        print k, len(v)
+        # print k, len(v)
+        date_k_list.append(k)
+        date_v_list.append(len(v))
 
     print
 
+    year_k_list = []
+    year_v_list = []
     print "Numbers of tweets in 2014 and 2015:"
     for k, v in sorted(year_dict.items(), key=operator.itemgetter(0)):
-        print k, len(v)
+        # print k, len(v)
+        year_k_list.append(k)
+        year_v_list.append(len(v))
 
     print
 
+    weekday_k_list = []
+    weekday_v_list = []
     print "Numbers of tweets from Monday to Sunday:"
     for day in DAYS:
-        print day, len(day_dict[day])
+        # print day, len(day_dict[day])
+        weekday_k_list.append(day)
+        weekday_v_list.append(len(day_dict[day]))        
 
     print
 
+    month_k_list = []
+    month_v_list = []
     print "Numbers of tweets in each month:"
     for k, v in sorted(month_dict.items(), key=lambda t: t[0]):
-        print k, len(v)
+        # print k, len(v)
+        month_k_list.append(k)
+        month_v_list.append(len(v))
 
     print
 
+    day_k_list = []
+    day_v_list = []
     print "Numbers of tweets in each single day:"
     for k, v in sorted(eachday_dict.items(), key=operator.itemgetter(0)):
-        print k, len(v)
+        # print k, len(v)
+        day_k_list.append(k)
+        day_v_list.append(len(v))
 
-def count_daily_words_keywords(fileName, keywords, MONTHS):
+    return date_k_list, date_v_list, year_k_list, year_v_list, weekday_k_list, weekday_v_list, month_k_list, month_v_list, day_k_list, day_v_list
+
+def count_daily_words_keywords(oneyeardata_json, keywords, MONTHS):
 
     rules = process_keywords(keywords)
 
     daily_keyword_index_dict = dict()
     daily_words_count = dict()
 
-    for line in open(fileName, "r"):
+    for line in open(oneyeardata_json, "r"):
         tweet = json.loads(line.decode('utf-8'))
 
         if 'lang' in tweet:                
@@ -517,7 +539,7 @@ def plot_separate_keyword_rate(date_list, keyword_rate_list, layout_title, X_tit
         layout = layout
     )
 
-    plot_url = py.plot(fig, filename = output_name)
+    plot_url = py.plot(fig, oneyeardata_json = output_name)
 
 def plot_keywords_rates(date_list, rate_dict, keywords, EVENT):
 
@@ -618,6 +640,29 @@ def compare_keyword_counts_before_after(keywords_dict, before_tweets_dict, after
 
     return keywords_before_dict, keywords_after_dict
 
+def export_lists_to_csv(list_all, filename):
+
+    with open(filename, 'wb') as f:
+        writer = csv.writer(f)
+
+        # Create headers in a row, from 1 to the end of onelist
+        headers = []
+        headers.append('time')
+        headers.append('suicide')
+        headers.append('depression')
+        headers.append('seek help')
+        headers.append('suicide lifeline')
+        headers.append('crisis hotline')
+        headers.append('Parkinson\'s')
+        headers.append('Robin Williams')
+        writer.writerow(headers)
+
+        # # export data from onelist to a list
+        # attributes = ['msg_id', 'message']
+
+        for onelist in list_all:
+            writer.writerow(onelist)
+
 def main():
     # mark the beginning time of process
     start = timeit.default_timer()
@@ -627,25 +672,55 @@ def main():
     DAYS = [u'Mon', u'Tue', u'Wed', u'Thu', u'Fri', u'Sat', u'Sun']
 
     data_dir = "/Users/tl8313/Documents/study_robinwilliams/extracted/"
-    fileName = data_dir + 'oneyear_sample.json'
+    oneyeardata_json = data_dir + 'oneyear_sample.json'
+    suicide_json = data_dir + "suicide.json"
+    depression_json = data_dir + "depression.json"
+    seekhelp_json = data_dir + "seek_help.json"
+    suicidelifeline_json = data_dir + "suicide_lifeline.json"
+    crisishotline_json = data_dir + "crisis_hotline.json"
+    parkinsons_json = data_dir + "parkinsons.json"
+    robinwilliams_json = data_dir + "robin_williams.json"
 
     keywords = ['suicide', 'depression', 'seek help', 'suicide lifeline', 'crisis hotline', 'Parkinson\'s', 'Robin Williams']
 
     stopset = build_stopsets()
 
-    before_tweets_dict, after_tweets_dict = split_tweets_before_after_event(fileName, EVENT, MONTHS)
-
-    keywords_dict, messages_normalized_word_dict, messages_stopwords_removed_dict, users_dict, tweet_keywords_dict = count_all_data_keywords(fileName, keywords, stopset, before_tweets_dict, after_tweets_dict)
+    # keywords_dict, messages_normalized_word_dict, messages_stopwords_removed_dict, users_dict, tweet_keywords_dict = count_all_data_keywords(oneyeardata_json, keywords, stopset, before_tweets_dict, after_tweets_dict)
 
     # find_tweets_with_different_keywords(keywords_dict, keywords)
 
-    before_tweets_dict, after_tweets_dict = split_tweets_before_after_event(fileName, EVENT, MONTHS)
+    # before_tweets_dict, after_tweets_dict = split_tweets_before_after_event(oneyeardata_json, EVENT, MONTHS)
 
-    keywords_before_dict, keywords_after_dict = compare_keyword_counts_before_after(keywords_dict, before_tweets_dict, after_tweets_dict, keywords)
+    # keywords_before_dict, keywords_after_dict = compare_keyword_counts_before_after(keywords_dict, before_tweets_dict, after_tweets_dict, keywords)
 
-    count_tweets_unit_time_period(fileName, MONTHS, DAYS)
+    # count_tweets_unit_time_period(oneyeardata_json, MONTHS, DAYS)
 
-    # daily_words_count, daily_keyword_index_dict = count_daily_words_keywords(fileName, keywords, MONTHS)
+    json_files = [suicide_json, depression_json, seekhelp_json, suicidelifeline_json, crisishotline_json, parkinsons_json, robinwilliams_json]
+
+    date_k_1, date_v_1, year_k_1, year_v_1, weekday_k_1, weekday_v_1, month_k_1, month_v_1, day_k_1, day_v_1 = count_tweets_unit_time_period(suicide_json, MONTHS, DAYS)
+    date_k_2, date_v_2, year_k_2, year_v_2, weekday_k_2, weekday_v_2, month_k_2, month_v_2, day_k_2, day_v_2 = count_tweets_unit_time_period(depression_json, MONTHS, DAYS)
+    date_k_3, date_v_3, year_k_3, year_v_3, weekday_k_3, weekday_v_3, month_k_3, month_v_3, day_k_3, day_v_3 = count_tweets_unit_time_period(seekhelp_json, MONTHS, DAYS)
+    date_k_4, date_v_4, year_k_4, year_v_4, weekday_k_4, weekday_v_4, month_k_4, month_v_4, day_k_4, day_v_4 = count_tweets_unit_time_period(suicidelifeline_json, MONTHS, DAYS)
+    date_k_5, date_v_5, year_k_5, year_v_5, weekday_k_5, weekday_v_5, month_k_5, month_v_5, day_k_5, day_v_5 = count_tweets_unit_time_period(crisishotline_json, MONTHS, DAYS)
+    date_k_6, date_v_6, year_k_6, year_v_6, weekday_k_6, weekday_v_6, month_k_6, month_v_6, day_k_6, day_v_6 = count_tweets_unit_time_period(parkinsons_json, MONTHS, DAYS)
+    date_k_7, date_v_7, year_k_7, year_v_7, weekday_k_7, weekday_v_7, month_k_7, month_v_7, day_k_7, day_v_7 = count_tweets_unit_time_period(robinwilliams_json, MONTHS, DAYS)
+
+    DATE = zip(date_k_1, date_v_1, date_v_2, date_v_3, date_v_4, date_v_5, date_v_6, date_v_7)
+    export_lists_to_csv(DATE, "date.csv")
+
+    YEAR = zip(year_k_1, year_v_1, year_v_2, year_v_3, year_v_4, year_v_5, year_v_6, year_v_7)
+    export_lists_to_csv(YEAR, "year.csv")
+
+    WEEKDAY = zip(weekday_k_1, weekday_v_1, weekday_v_2, weekday_v_3, weekday_v_4, weekday_v_5, weekday_v_6, weekday_v_7)
+    export_lists_to_csv(WEEKDAY, "weekday.csv")
+
+    MONTH = zip(month_k_1, month_v_1, month_v_2, month_v_3, month_v_4, month_v_5, month_v_6, month_v_7)
+    export_lists_to_csv(MONTH, "month.csv")
+
+    DAY = zip(day_k_1, day_v_1, day_v_2, day_v_3, day_v_4, day_v_5, day_v_6, day_v_7)
+    export_lists_to_csv(DAY, "day.csv")
+
+    # daily_words_count, daily_keyword_index_dict = count_daily_words_keywords(oneyeardata_json, keywords, MONTHS)
 
     # day_keyword_rate_dict = get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count)
 
