@@ -211,6 +211,8 @@ def main():
 
     for yearmonth, v in monthly_user_descriptions.items():
         print(yearmonth)
+        f = open('/Users/tl8313/Documents/study_robinwilliams/figures/monthly_profile/'+yearmonth, 'w')
+        f.write(str(yearmonth) + "----" + str(len(v)) + "\n")
 
         # Calculate frequency distribution
         fdist = nltk.FreqDist(v)
@@ -220,12 +222,15 @@ def main():
         # normalised_fdist = {k : v*factor for k, v in fdist.iteritems()}
         for k, v in fdist.iteritems():
             tuples.append((k, v*factor))
+            if len(k) > 0:
+                f.write(k.encode('utf-8') + "    " + str(v) + "\n")
+        f.close()
 
         # # Output top words
         # for word, frequency in fdist.most_common(10):
         #     print((word, frequency))
 
-        plot_word_cloud_from_tuples(tuples, yearmonth)
+        # plot_word_cloud_from_tuples(tuples, yearmonth)
 
     before_users, after_users = find_users_before_after_event(before_tweets, after_tweets, user_tweets_dict)
     print "%d users posted tweets before this" % len(before_users)

@@ -1,6 +1,6 @@
 import timeit, math, nltk
 from count_keywords import build_stopsets, process_keywords
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 import ujson as json
 from ark_twokenize import tokenizeRawTweetText
 from NER_tagger import parse_raw_message_emoji
@@ -92,8 +92,10 @@ def main():
 
     total_tweets, monthly_hashtags_dict = separate_tweets_contain_RWname(json_file, keywords, stopset, MONTHS)
 
-    for yearmonth, v in monthly_hashtags_dict.items():
+    for yearmonth, v in OrderedDict(sorted(monthly_hashtags_dict.items(), key=lambda t: t[0])).items():
         print yearmonth, len(v)
+        f = open('/Users/tl8313/Documents/study_robinwilliams/figures/monthly_hashtags/'+yearmonth, 'w')
+        f.write(str(yearmonth) + "----" + str(len(v)) + "\n")
 
         # Calculate frequency distribution
         fdist = nltk.FreqDist(v)
@@ -103,8 +105,11 @@ def main():
         # normalised_fdist = {k : v*factor for k, v in fdist.iteritems()}
         for k, v in fdist.iteritems():
             tuples.append((k, v*factor))
+            if len(k) > 0: 
+                f.write(k + "    " + str(v) + "\n")
+        f.close()
 
-        plot_word_cloud_from_tuples(tuples, yearmonth)
+        # plot_word_cloud_from_tuples(tuples, yearmonth)
 
     ##### mark the ending time of process #####
     end = timeit.default_timer()
