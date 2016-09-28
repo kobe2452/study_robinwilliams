@@ -685,11 +685,11 @@ def main():
 
     stopset = build_stopsets()
 
-    # keywords_dict, messages_normalized_word_dict, messages_stopwords_removed_dict, users_dict, tweet_keywords_dict = count_all_data_keywords(oneyeardata_json, keywords, stopset, before_tweets_dict, after_tweets_dict)
-
     # find_tweets_with_different_keywords(keywords_dict, keywords)
 
-    # before_tweets_dict, after_tweets_dict = split_tweets_before_after_event(oneyeardata_json, EVENT, MONTHS)
+    before_tweets_dict, after_tweets_dict = split_tweets_before_after_event(oneyeardata_json, EVENT, MONTHS)
+
+    keywords_dict, messages_normalized_word_dict, messages_stopwords_removed_dict, users_dict, tweet_keywords_dict = count_all_data_keywords(oneyeardata_json, keywords, stopset, before_tweets_dict, after_tweets_dict)
 
     # keywords_before_dict, keywords_after_dict = compare_keyword_counts_before_after(keywords_dict, before_tweets_dict, after_tweets_dict, keywords)
 
@@ -720,15 +720,15 @@ def main():
     DAY = zip(day_k_1, day_v_1, day_v_2, day_v_3, day_v_4, day_v_5, day_v_6, day_v_7)
     export_lists_to_csv(DAY, "day.csv")
 
-    # daily_words_count, daily_keyword_index_dict = count_daily_words_keywords(oneyeardata_json, keywords, MONTHS)
+    daily_words_count, daily_keyword_index_dict = count_daily_words_keywords(oneyeardata_json, keywords, MONTHS)
 
-    # day_keyword_rate_dict = get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count)
+    day_keyword_rate_dict = get_daily_keyword_rate(daily_keyword_index_dict, daily_words_count)
 
-    # date_list, rate_dict = get_eachday_keyword_rate(day_keyword_rate_dict, keywords)
+    date_list, rate_dict = get_eachday_keyword_rate(day_keyword_rate_dict, keywords)
 
-    # plot_keywords_rates(date_list, rate_dict, keywords, EVENT)
+    plot_keywords_rates(date_list, rate_dict, keywords, EVENT)
 
-    # plot_before_after_keyword_wordcloud(keywords_dict, messages_stopwords_removed_dict, before_tweets_dict, after_tweets_dict, keywords)
+    plot_before_after_keyword_wordcloud(keywords_dict, messages_stopwords_removed_dict, before_tweets_dict, after_tweets_dict, keywords)
     
     ##### mark the ending time of process #####
     end = timeit.default_timer()

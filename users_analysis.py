@@ -84,6 +84,7 @@ def split_tweets_into_unit_time(fileName, EVENT, MONTHS):
     after_tweets = defaultdict(int)
 
     tweets_in_each_month = defaultdict(list)
+    users_in_each_month = defaultdict(list)
 
     for line in open(fileName, "r"):
         tweet = json.loads(line.decode('utf-8'))
@@ -93,6 +94,9 @@ def split_tweets_into_unit_time(fileName, EVENT, MONTHS):
 
             # Only process and analyze tweets written in English
             if language == 'en':
+                user = tweet['user']
+                user_id = user['id_str']
+
                 msg_id = tweet['id']
                 timestamp = tweet['created_at'].split()
 
@@ -104,6 +108,7 @@ def split_tweets_into_unit_time(fileName, EVENT, MONTHS):
                 two_digit_month = '%02d' % int(MONTHS.index(tweet_month)+1)
 
                 tweets_in_each_month[tweet_year + two_digit_month].append(msg_id)
+                users_in_each_month[tweet_year + two_digit_month].append(user_id)
 
                 if int(tweet_year) > int(event_year):
                     after_tweets[msg_id] += 1
@@ -118,7 +123,7 @@ def split_tweets_into_unit_time(fileName, EVENT, MONTHS):
                         else:
                             after_tweets[msg_id] += 1
 
-    return before_tweets, after_tweets, tweets_in_each_month
+    return before_tweets, after_tweets, tweets_in_each_month, users_in_each_month
 
 def compare_common_users_changes(common_users, before_users, after_users):
     
@@ -196,11 +201,16 @@ def main():
     user_tweets_dict, user_profile, tweet_user_dict = count_users_tweets(fileName)
     # tweets_count_dict = cluster_users_by_tweets_count(user_tweets_dict)
 
-    before_tweets, after_tweets, tweets_in_each_month = split_tweets_into_unit_time(fileName, EVENT, MONTHS)
+    before_tweets, after_tweets, tweets_in_each_month, users_in_each_month = split_tweets_into_unit_time(fileName, EVENT, MONTHS)
     print "%s tweets posted before this" % str(len(before_tweets))
     print "%s tweets posted after this" % len(after_tweets)
 
+    print "Users in each month:"
+    for k, v in OrderedDict(sorted(users_in_each_month.items(), key=lambda t: t[0])).items():
+        print k, len(v)
+
     monthly_user_descriptions = defaultdict(list)
+    print "Tweets in each month:"
     for k, v in OrderedDict(sorted(tweets_in_each_month.items(), key=lambda t: t[0])).items():
         print k, len(v)
         for msg_id in v:
